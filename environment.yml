@@ -1,4 +1,4 @@
-name: pytorch0.4
+name: arxiv-on-aml
 channels:
   - pytorch
   - defaults

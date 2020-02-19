@@ -1,12 +1,12 @@
 #!/bin/sh
 
-vocab="data/vocab.json"
-train_src="data/train.de-en.de.wmixerprep"
-train_tgt="data/train.de-en.en.wmixerprep"
-dev_src="data/valid.de-en.de"
-dev_tgt="data/valid.de-en.en"
-test_src="data/test.de-en.de"
-test_tgt="data/test.de-en.en"
+vocab="/data/vocab.json"
+train_src="data/arxiv/abstract"
+train_tgt="data/arxiv/title"
+dev_src="data/arxiv/abstract.dev"
+dev_tgt="data/arxiv/title.dev"
+test_src="data/arxiv/abstract.test"
+test_tgt="data/arxiv/title.test"
 
 work_dir="work_dir"
 
@@ -15,8 +15,8 @@ echo save results to ${work_dir}
 
 python nmt.py \
     train \
-    --cuda \
-    --vocab ${vocab} \
+    # --cuda \
+    --vocab=${vocab} \
     --train-src ${train_src} \
     --train-tgt ${train_tgt} \
     --dev-src ${dev_src} \
@@ -35,7 +35,7 @@ python nmt.py \
 
 python nmt.py \
     decode \
-    --cuda \
+    # --cuda \
     --beam-size 5 \
     --max-decoding-time-step 100 \
     ${work_dir}/model.bin \
