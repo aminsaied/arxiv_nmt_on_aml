@@ -1,7 +1,7 @@
 from azureml.core import Workspace
 from azureml.core import Experiment
 from azureml.pipeline.core import Pipeline
-from modules.ingestion.ingestion_step import ingestion_step
+from modules.ingest.ingest_step import ingest_step
 # from modules.preprocess.data_preprocess_step import data_preprocess_step
 # from modules.train.train_step import train_step
 # from modules.evaluate.evaluate_step import evaluate_step
@@ -34,7 +34,7 @@ cpu_compute_target.wait_for_completion(show_output=True)
 # gpu_compute_target.wait_for_completion(show_output=True)
 
 # Step 1: Data ingestion 
-ingestion_step, ingestion_outputs = ingestion_step(datastore, cpu_compute_target)
+ingest_step, ingest_outputs = ingest_step(datastore, cpu_compute_target)
 
 # # Step 2: Data preprocessing 
 # data_preprocess_step, data_preprocess_outputs = data_preprocess_step(data_ingestion_outputs['raw_data_dir'], cpu_compute_target)
