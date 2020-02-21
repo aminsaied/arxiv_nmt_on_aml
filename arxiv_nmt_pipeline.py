@@ -1,4 +1,5 @@
 from azureml.core import Workspace
+from azureml.core.environment import Environment
 from azureml.core.runconfig import RunConfiguration
 from azureml.core.runconfig import DEFAULT_CPU_IMAGE
 from azureml.core import Experiment
