@@ -1,6 +1,7 @@
 from azureml.core import Workspace
 from azureml.core.environment import Environment
 from azureml.core.runconfig import RunConfiguration
+from azureml.core.conda_dependencies import CondaDependencies
 from azureml.core.runconfig import DEFAULT_CPU_IMAGE
 from azureml.core import Experiment
 from azureml.pipeline.core import Pipeline
@@ -15,9 +16,6 @@ from azureml.core.compute import AmlCompute, ComputeTarget
 print('Connecting to Workspace ...')
 workspace = Workspace.from_config()
 datastore = workspace.get_default_datastore()
-
-# Set up conda environment
-conda_env = Environment.from_conda_specification(name="cornetto", file_path="env.yml")
 
 # Create CPU compute target
 print('Creating CPU compute target ...')
@@ -40,8 +38,17 @@ run_amlcompute.environment.docker.enabled = True
 run_amlcompute.environment.docker.base_image = DEFAULT_CPU_IMAGE
 # Use conda_dependencies.yml to create a conda environment in the Docker image for execution
 run_amlcompute.environment.python.user_managed_dependencies = False
-# Attach conda environment specified above to run config
-runconfig.run_config.environment = conda_env
+# Specify CondaDependencies obj, add necessary packages
+conda_packages = ['beautifulsoup4=4.8.2=py37_0']
+run_amlcompute.environment.python.conda_dependencies = CondaDependencies.create(conda_packages=conda_packages)
+
+# TODO: Use env.yml to specify conda dependencies instead of
+# manually specifying list of required packages
+# # Set up conda environment
+# conda_env = Environment.from_conda_specification(name="cornetto", file_path="env.yml")
+# # Attach conda environment specified above to run config
+# runconfig.run_config.environment = conda_env
+
 
 # # Create GPU compute target
 # print('Creating GPU compute target ...')
