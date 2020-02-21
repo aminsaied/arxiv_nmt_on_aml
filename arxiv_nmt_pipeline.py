@@ -6,7 +6,7 @@ from azureml.core.runconfig import DEFAULT_CPU_IMAGE
 from azureml.core import Experiment
 from azureml.pipeline.core import Pipeline
 from modules.ingest.ingest_step import ingest_step
-# from modules.preprocess.data_preprocess_step import data_preprocess_step
+from modules.preprocess.preprocess_step import preprocess_step
 # from modules.train.train_step import train_step
 # from modules.evaluate.evaluate_step import evaluate_step
 # from modules.deploy.deploy_step import
@@ -64,7 +64,7 @@ run_amlcompute.environment.python.conda_dependencies = CondaDependencies.create(
 ingest_step, ingest_outputs = ingest_step(datastore, cpu_compute_target)
 
 # # Step 2: Data preprocessing 
-# data_preprocess_step, data_preprocess_outputs = data_preprocess_step(data_ingestion_outputs['raw_data_dir'], cpu_compute_target)
+preprocess_step, preprocess_outputs = preprocess_step(ingest_outputs['raw_data_dir'], cpu_compute_target)
 
 # # Step 3: Train Model
 # train_step, train_outputs = train_step(data_preprocess_outputs['train_dir'], data_preprocess_outputs['valid_dir'], gpu_compute_target)
@@ -80,6 +80,10 @@ print('Submitting pipeline ...')
 pipeline_parameters = {
     'start_date': '2015-01-01',
     'end_date': '2015-02-01',
+    'input_col': 'Abstract',
+    'output_col': 'Title',
+    'train_proportion': 0.8,
 }
-pipeline = Pipeline(workspace=workspace, steps=[ingest_step])
+
+pipeline = Pipeline(workspace=workspace, steps=[ingest_step, preprocess_step])
 pipeline_run = Experiment(workspace, 'arXiv-NMT').submit(pipeline, pipeline_parameters=pipeline_parameters)

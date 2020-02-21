@@ -2,20 +2,7 @@ import os
 import argparse
 import random
 
-from utils import DataFrameSelector, TextCleaner, train_valid_test_split
-
-INPUT_ = "Abstract"
-OUTPUT_ = "Title"
-ARXIV_RAW_DIR = os.path.join(os.path.abspath('.'), 'data', 'arxiv_raw')
-
-MATH_TOKEN = 'MATHEQUATIONTOKEN'
-
-# hyperparameters
-MIN_ABSTR = 10
-MIN_TITLE = 5
-
-# define transformers
-
+from utils import TextCleaner, train_valid_test_split
         
 # Define arguments
 parser = argparse.ArgumentParser(description='Web scraping arg parser')
@@ -60,11 +47,9 @@ for file in raw_files:
     train, valid, test = train_valid_test_split(arxiv, train_proportion)
 
     # process the text
-    names = ['train', 'valid', 'test']
     dirs = [train_dir, valid_dir, test_dir]
     dataframes = [train, valid, test]
-
-    for dir_, name, df in zip(dirs, names, dataframes):
+    for dir_, df in zip(dirs, dataframes):
         # clean input/output text
         input_series_raw = df[input_col]
         output_series_raw = df[output_col]
@@ -72,7 +57,7 @@ for file in raw_files:
         output_series_clean = TextCleaner.clean(output_series_raw)
         
         # write input to txt file line by line
-        input_filepath = dir_ + name + input_col.lower()
+        input_filepath = dir_ + input_col.lower()
         with open(input_filepath, 'a+') as file:
             for _, line in input_series_clean.items():
                 file.write(line + '\n')

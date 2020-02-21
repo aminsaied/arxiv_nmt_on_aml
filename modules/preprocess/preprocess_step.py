@@ -57,10 +57,10 @@ def preprocess_step(raw_data_dir, compute_target):
 
     step = PythonScriptStep(
         name="Preprocess Data",
-        script_name='data_preprocess.py',
+        script_name='preprocess.py',
         arguments=[
             '--raw_data_dir', raw_data_dir,
-            '--train_proportion', training_proportion,
+            '--train_proportion', train_proportion,
             '--train_dir', train_dir, 
             '--valid_dir', valid_dir, 
             '--test_dir', test_dir,

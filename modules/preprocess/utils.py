@@ -3,35 +3,11 @@
 """
 import re
 
-class DataFrameSelector(BaseEstimator, TransformerMixin):
-    """Returns series from pandas dataframe."""
-    def __init__(self, column):
-        self.column = column
-    def fit(self, X, y=None):
-        return self
-    def transform(self, X, y=None):
-        return X[self.column]
+MATH_TOKEN = 'MATHEQUATIONTOKEN'
 
-class TextCleaner(BaseEstimator, TransformerMixin):
+class TextCleaner():
     """Cleans abstracts/titles in preparation for NMT model."""
-    def __init__(self, column):
-        fname = column.lower() + ".txt"
-        self.path = os.path.join(os.path.abspath('.'), 'data', 'arxiv', fname)
-
-    def fit(self, X, y=None):
-        return self
-
-    def transform(self, X, y=None):
-        f = lambda abstract: self.clean(abstract, math_token=MATH_TOKEN)
-        X_cleaned = X.apply(f)
-        
-        # write series to txt file line by line
-        with open(self.path, 'a') as f:
-            for _, line in X_cleaned.items():
-                f.write(line + '\n')
-                
-        return X_cleaned
-    
+  
     @classmethod
     def clean(cls, series):
         """Apply text cleaning to a pandas series.
@@ -40,7 +16,7 @@ class TextCleaner(BaseEstimator, TransformerMixin):
         return series.apply(f)
 
     @classmethod
-    def _clean_text(cls, text, math_token='MATHEQUATIONTOKEN'):
+    def _clean_text(cls, text, math_token=MATH_TOKEN):
         """
         Removes math and non-alpha characters
         (including tabs and new line symbols) from the text.
