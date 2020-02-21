@@ -1,4 +1,6 @@
 from azureml.core import Workspace
+from azureml.core.runconfig import RunConfiguration
+from azureml.core.runconfig import DEFAULT_CPU_IMAGE
 from azureml.core import Experiment
 from azureml.pipeline.core import Pipeline
 from modules.ingest.ingest_step import ingest_step
@@ -13,6 +15,9 @@ print('Connecting to Workspace ...')
 workspace = Workspace.from_config()
 datastore = workspace.get_default_datastore()
 
+# Set up conda environment
+conda_env = Environment.from_conda_specification(name="cornetto", file_path="env.yml")
+
 # Create CPU compute target
 print('Creating CPU compute target ...')
 cpu_cluster_name = 'cpucluster'
@@ -22,6 +27,20 @@ cpu_compute_config = AmlCompute.provisioning_configuration(vm_size='STANDARD_D2_
                                                            max_nodes=2)
 cpu_compute_target = ComputeTarget.create(workspace, cpu_cluster_name, cpu_compute_config)
 cpu_compute_target.wait_for_completion(show_output=True)
+
+# Create Run Configuration
+# Create a new runconfig object
+run_amlcompute = RunConfiguration()
+# Use the cpu_cluster you created above. 
+run_amlcompute.target = cpu_compute_target
+# Enable Docker
+run_amlcompute.environment.docker.enabled = True
+# Set Docker base image to the default CPU-based image
+run_amlcompute.environment.docker.base_image = DEFAULT_CPU_IMAGE
+# Use conda_dependencies.yml to create a conda environment in the Docker image for execution
+run_amlcompute.environment.python.user_managed_dependencies = False
+# Attach conda environment specified above to run config
+runconfig.run_config.environment = conda_env
 
 # # Create GPU compute target
 # print('Creating GPU compute target ...')
