@@ -97,3 +97,11 @@ This work is licensed under a Creative Commons Attribution 4.0 International Lic
 Following this pipelines tutorial: https://github.com/Azure/aml-object-recognition-pipeline
 
 Issues following tutorial
+
+Painpoint:
+- Debuging script is painful! Getting packages into the compute instance is a little painful (especially for a new data scientist using AML!). Process of:
+    - build pipeline
+    - submit to AML
+    - wait for pipeline to get started, 5+ minutes
+    - get error message (after clicking around on a few tabs is it Output + logs or Raw JSON)
+    - make code change and rebuild the pipeline, start again
