@@ -103,6 +103,17 @@ Painpoint:
     - wait for pipeline to get started, 5+ minutes
     - get error message (after clicking around on a few tabs is it Output + logs or Raw JSON)
     - make code change and rebuild the pipeline, start again
+- Compute instance vs DSVM
+    - On DSVM the notebook experiance lives in the notebook directory, so we got used to putting out code in three
+    - On compute instance notebook seems to live in a really strange place: `/mnt/batch/tasks/shared/LS_root/mounts/clusters/citest/`
+- Good development environment is key. Mine was a little janky (to say the least). Looking for better solutions that this:
+    - Final workflow: have VS Code SSH into compute instance where my code lives. In parallel have a jupyter notebook open in the same compute instance with a terminal to run jobs.
+    - This requires: setting up SSH on the compute instance, and adding SSH keys for each place you want to work from. That's okay, but to grant an additional machine SSH access I had to SSH in from another machine and manually update the ssh config. Worse still, I found that my second machine forgot that I had granted it SSH access so I ended up being forced to work from machine 1.
+    - Jupyter on compute instance lands you in a strange directory `/mnt/batch/tasks/shared/LS_root/mounts/clusters/<compute-instance-name>/`. To get parity with VS code have to navigate here too. This is not a good user experience.
 
 Things that are nice:
 - If you are _not too far_ from standard data science packages, the environment is a bonus! Most standard data science libraries are there already, and adding one or two with conda is pretty simple. (Discovering what you need to add is less nice - see pain point above)
+
+Questions:
+- See data in default storage. It would be nice to have easy (any?) way to view the data being written into and out of the steps of a pipeline.
+- Is there a preferred way to iterate/develop pipelines. Integration with VS Code would be nice, but has some issues (as I mentioned in pain points).
