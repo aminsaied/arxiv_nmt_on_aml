@@ -55,4 +55,4 @@ pipeline_parameters = {
     'end_date': '2015-02-01',
 }
 pipeline = Pipeline(workspace=workspace, steps=[ingest_step])
-pipeline_run = Experiment(workspace, 'arXiv NMT model').submit(pipeline, pipeline_parameters=pipeline_parameters)
+pipeline_run = Experiment(workspace, 'arXiv-NMT').submit(pipeline, pipeline_parameters=pipeline_parameters)
