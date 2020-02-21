@@ -39,7 +39,7 @@ run_amlcompute.environment.docker.base_image = DEFAULT_CPU_IMAGE
 # Use conda_dependencies.yml to create a conda environment in the Docker image for execution
 run_amlcompute.environment.python.user_managed_dependencies = False
 # Specify CondaDependencies obj, add necessary packages
-conda_packages = ['beautifulsoup4=4.8.2=py37_0']
+conda_packages = ['bs4', 'beautifulsoup4=4.8.2=py37_0']
 run_amlcompute.environment.python.conda_dependencies = CondaDependencies.create(conda_packages=conda_packages)
 
 # TODO: Use env.yml to specify conda dependencies instead of
