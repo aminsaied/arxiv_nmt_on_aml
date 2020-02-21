@@ -1,4 +1,5 @@
 import os
+from azureml.core.conda_dependencies import CondaDependencies
 from azureml.pipeline.steps import PythonScriptStep
 from azureml.core.runconfig import RunConfiguration
 from azureml.pipeline.core import PipelineData
@@ -30,6 +31,13 @@ def ingest_step(datastore, compute_target):
         'AZURE_REGION': datastore._workspace.location
         }
     run_config.environment.docker.enabled = True
+    run_config.environment.docker.base_image = DEFAULT_CPU_IMAGE
+    run_config.environment.python.user_managed_dependencies = False
+    conda_packages = ['bs4', 'beautifulsoup4=4.8.2=py37_0']
+    run_config.environment.python.conda_dependencies = CondaDependencies.create(
+        conda_packages=conda_packages
+        )
+
 
     start_date = PipelineParameter(name='start_date', default_value='2015-01-01')
     end_date = PipelineParameter(name='end_date', default_value='2015-06-01')
