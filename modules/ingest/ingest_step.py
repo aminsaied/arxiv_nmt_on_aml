@@ -4,7 +4,7 @@ from azureml.core.runconfig import RunConfiguration
 from azureml.pipeline.core import PipelineData
 from azureml.pipeline.core import PipelineParameter
 
-def data_ingestion_step(datastore, compute_target):
+def ingest_step(datastore, compute_target):
     '''
     Collects metadata of all the papers published between two given days (both
     days given as YYYY-MM-DD strings). The metadata we collect is:
@@ -45,8 +45,8 @@ def data_ingestion_step(datastore, compute_target):
     outputs_map = { 'raw_data_dir': raw_data_dir }
 
     step = PythonScriptStep(
-        name="Ingestion",
-        script_name='ingestion.py',
+        name="Ingest",
+        script_name='ingest.py',
         arguments=[
             '--output_dir', raw_data_dir, 
             '--start_date', start_date, 
