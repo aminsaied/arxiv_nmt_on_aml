@@ -96,8 +96,6 @@ This work is licensed under a Creative Commons Attribution 4.0 International Lic
 
 Following this pipelines tutorial: https://github.com/Azure/aml-object-recognition-pipeline
 
-Issues following tutorial
-
 Painpoint:
 - Debuging script is painful! Getting packages into the compute instance is a little painful (especially for a new data scientist using AML!). Process of:
     - build pipeline
@@ -105,3 +103,6 @@ Painpoint:
     - wait for pipeline to get started, 5+ minutes
     - get error message (after clicking around on a few tabs is it Output + logs or Raw JSON)
     - make code change and rebuild the pipeline, start again
+
+Things that are nice:
+- If you are _not too far_ from standard data science packages, the environment is a bonus! Most standard data science libraries are there already, and adding one or two with conda is pretty simple. (Discovering what you need to add is less nice - see pain point above)
