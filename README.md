@@ -91,3 +91,9 @@ After training and decoding, we call the official evaluation script `multi-bleu.
 ### License
 
 This work is licensed under a Creative Commons Attribution 4.0 International License.
+
+# AML Pipelines
+
+Following this pipelines tutorial: https://github.com/Azure/aml-object-recognition-pipeline
+
+Issues following tutorial
