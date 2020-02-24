@@ -1,6 +1,7 @@
 import os
 import argparse
 import random
+import pandas as pd
 
 from utils import TextCleaner, train_valid_test_split
         
@@ -40,30 +41,32 @@ if not os.path.exists(test_dir):
 raw_files = [f for f in os.listdir(raw_data_dir) if os.path.isfile(os.path.join(raw_data_dir, f))]
 
 for file in raw_files:
-    # load the raw data
-    arxiv = pd.read_pickle(file)
-
-    # split the data into train/valid/test sets
-    train, valid, test = train_valid_test_split(arxiv, train_proportion)
-
-    # process the text
-    dirs = [train_dir, valid_dir, test_dir]
-    dataframes = [train, valid, test]
-    for dir_, df in zip(dirs, dataframes):
-        # clean input/output text
-        input_series_raw = df[input_col]
-        output_series_raw = df[output_col]
-        input_series_clean = TextCleaner.clean(input_series_raw)
-        output_series_clean = TextCleaner.clean(output_series_raw)
+    if file.endswith('.pkl'):
         
-        # write input to txt file line by line
-        input_filepath = dir_ + input_col.lower()
-        with open(input_filepath, 'a+') as file:
-            for _, line in input_series_clean.items():
-                file.write(line + '\n')
+        # load the raw data
+        arxiv = pd.read_pickle(os.path.join(raw_data_dir, file))
 
-        # write output to txt file line by line
-        output_filepath = dir_ + name + output_col.lower()
-        with open(output_filepath, 'a+') as file:
-            for _, line in output_series_clean.items():
-                file.write(line + '\n')
+        # split the data into train/valid/test sets
+        train, valid, test = train_valid_test_split(arxiv, train_proportion)
+
+        # process the text
+        dirs = [train_dir, valid_dir, test_dir]
+        dataframes = [train, valid, test]
+        for dir_, df in zip(dirs, dataframes):
+            # clean input/output text
+            input_series_raw = df[input_col]
+            output_series_raw = df[output_col]
+            input_series_clean = TextCleaner.clean(input_series_raw)
+            output_series_clean = TextCleaner.clean(output_series_raw)
+            
+            # write input to txt file line by line
+            input_filepath = dir_ + input_col.lower()
+            with open(input_filepath, 'a+') as file:
+                for _, line in input_series_clean.items():
+                    file.write(line + '\n')
+
+            # write output to txt file line by line
+            output_filepath = dir_  + output_col.lower()
+            with open(output_filepath, 'a+') as file:
+                for _, line in output_series_clean.items():
+                    file.write(line + '\n')

@@ -5,6 +5,7 @@ Contains :class:`ArxivHarvester` for scraping metadata from arxiv papers.
 The arxiv is part of the "Open Archives Initiative" which facilitates the
 harvesting of metadata.
 """
+import os
 import re, time
 import requests
 from bs4 import BeautifulSoup as bs
@@ -26,6 +27,9 @@ class ArxivHarvester(object):
                        name_template=NAME_TEMPLATE):
         self.arxiv_data_path = arxiv_data_path
         self.name_template = name_template
+
+        if not os.path.exists(arxiv_data_path):
+            os.makedirs(arxiv_data_path)
 
     def harvest(self, start_date=None, end_date=None):
         """Goes to the arxiv and asks for its data.
@@ -69,7 +73,9 @@ class ArxivHarvester(object):
                     continue
 
             # pickle the data-frame with these 1000 papers
-            df.to_pickle(self.arxiv_data_path+self.name_template%file_counter)
+            filename = os.path.join(self.arxiv_data_path, self.name_template%file_counter)
+            df.to_pickle(filename)
+            print('Batch {} pickled with {} entires to {}'.format(file_counter, len(df), filename))
             file_counter += 1
 
             res_token =  soup.find("resumptiontoken")
