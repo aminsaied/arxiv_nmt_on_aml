@@ -1,24 +1,10 @@
-#!/usr/bin/env python
-"""
-Usage:
-    vocab.py --train-src=<file> --train-tgt=<file> [options] VOCAB_FILE
-
-Options:
-    -h --help                  Show this screen.
-    --train-src=<file>         File of training source sentences
-    --train-tgt=<file>         File of training target sentences
-    --size=<int>               vocab size [default: 50000]
-    --freq-cutoff=<int>        frequency cutoff [default: 2]
-"""
-
 from typing import List
 from collections import Counter
 from itertools import chain
-from docopt import docopt
 import json
 import torch
 
-from utils import read_corpus, input_transpose
+from utils import input_transpose
 
 
 class VocabEntry(object):
@@ -124,19 +110,3 @@ class Vocab(object):
 
     def __repr__(self):
         return 'Vocab(source %d words, target %d words)' % (len(self.src), len(self.tgt))
-
-
-if __name__ == '__main__':
-    args = docopt(__doc__)
-
-    print('read in source sentences: %s' % args['--train-src'])
-    print('read in target sentences: %s' % args['--train-tgt'])
-
-    src_sents = read_corpus(args['--train-src'], source='src')
-    tgt_sents = read_corpus(args['--train-tgt'], source='tgt')
-
-    vocab = Vocab.build(src_sents, tgt_sents, int(args['--size']), int(args['--freq-cutoff']))
-    print('generated vocabulary, source %d words, target %d words' % (len(vocab.src), len(vocab.tgt)))
-
-    vocab.save(args['VOCAB_FILE'])
-    print('vocabulary saved to %s' % args['VOCAB_FILE'])

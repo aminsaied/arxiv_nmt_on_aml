@@ -29,7 +29,7 @@ def ingest_step(datastore, compute_target):
 
     run_config = RunConfiguration()
     run_config.environment.environment_variables = {
-        'AZURE_REGION': datastore._workspace.location
+        'AZURE_REGION': datastore.workspace.location
         }
     run_config.environment.docker.enabled = True
     run_config.environment.docker.base_image = DEFAULT_CPU_IMAGE

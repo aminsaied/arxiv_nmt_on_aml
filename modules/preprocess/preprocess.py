@@ -6,7 +6,7 @@ import pandas as pd
 from utils import TextCleaner, train_valid_test_split
         
 # Define arguments
-parser = argparse.ArgumentParser(description='Web scraping arg parser')
+parser = argparse.ArgumentParser(description='Preprocess text data arg parser')
 parser.add_argument('--raw_data_dir', type=str, help='Directory where raw data is stored')
 parser.add_argument('--train_proportion', type=float, default=0.8, help='Proportion of data used to train')
 parser.add_argument('--train_dir', type=str, help='Directory to output the processed training data')
@@ -60,13 +60,13 @@ for file in raw_files:
             output_series_clean = TextCleaner.clean(output_series_raw)
             
             # write input to txt file line by line
-            input_filepath = dir_ + input_col.lower()
+            input_filepath = os.path.join(dir_, input_col.lower())
             with open(input_filepath, 'a+') as file:
                 for _, line in input_series_clean.items():
                     file.write(line + '\n')
 
             # write output to txt file line by line
-            output_filepath = dir_  + output_col.lower()
+            output_filepath = os.path.join(dir_, output_col.lower())
             with open(output_filepath, 'a+') as file:
                 for _, line in output_series_clean.items():
                     file.write(line + '\n')

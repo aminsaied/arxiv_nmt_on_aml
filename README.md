@@ -110,6 +110,19 @@ Painpoint:
     - Final workflow: have VS Code SSH into compute instance where my code lives. In parallel have a jupyter notebook open in the same compute instance with a terminal to run jobs.
     - This requires: setting up SSH on the compute instance, and adding SSH keys for each place you want to work from. That's okay, but to grant an additional machine SSH access I had to SSH in from another machine and manually update the ssh config. Worse still, I found that my second machine forgot that I had granted it SSH access so I ended up being forced to work from machine 1.
     - Jupyter on compute instance lands you in a strange directory `/mnt/batch/tasks/shared/LS_root/mounts/clusters/<compute-instance-name>/`. To get parity with VS code have to navigate here too. This is not a good user experience.
+- Relative imports: Modules that reuse logic need to live in the same directory.
+    - Would be nice to have concept of "shared module"
+    - Example:
+        - `script1.py` and `script2.py` both use the same class `MyClass` in `myclass.py`.
+        - The structure `module1/{script1.py}`, `module2/{script2.py}`, `shared/{myclass.py}` does not work since we pass `source_directory=os.path.dirname(os.path.abspath(__file__)),`
+        - Instead using `module1_and_2/{script1.py, script2.pt, myclass.py}` will work.
+- Unable to see data from previous pipeline step:
+    - Wasted 2 days figuring this out: https://docs.microsoft.com/en-us/azure/machine-learning/how-to-debug-pipelines#troubleshooting-tips
+    - Solution: makesure you use `os.makedirs(args.output_dir, exist_ok=True)`
+    - This issue is easily solved if you've seen it before, very hard to solve otherwise!
+- Be careful changing names of modules!
+    - I changed the name of a module, but forgot to change one of the places it was being called. This was causing strange, hard to debug errors pointing to things that were no longer there in my code. The answer (I think!) is that aml is caching the steps you uploaded previously, so it was still pointing to code that no longer exists?
+
 
 Broken:
 - Ingest step dumps data in 'raw_data_dir' specified as follows:

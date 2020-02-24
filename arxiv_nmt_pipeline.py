@@ -7,6 +7,7 @@ from azureml.core import Experiment
 from azureml.pipeline.core import Pipeline
 from modules.ingest.ingest_step import ingest_step
 from modules.preprocess.preprocess_step import preprocess_step
+from modules.train.build_vocab_step import build_vocab_step
 # from modules.train.train_step import train_step
 # from modules.evaluate.evaluate_step import evaluate_step
 # from modules.deploy.deploy_step import
@@ -30,15 +31,10 @@ cpu_compute_target.wait_for_completion(show_output=True)
 # Create Run Configuration
 # Create a new runconfig object
 run_amlcompute = RunConfiguration()
-# Use the cpu_cluster you created above. 
 run_amlcompute.target = cpu_compute_target
-# Enable Docker
 run_amlcompute.environment.docker.enabled = True
-# Set Docker base image to the default CPU-based image
 run_amlcompute.environment.docker.base_image = DEFAULT_CPU_IMAGE
-# Use conda_dependencies.yml to create a conda environment in the Docker image for execution
 run_amlcompute.environment.python.user_managed_dependencies = False
-# Specify CondaDependencies obj, add necessary packages
 conda_packages = ['beautifulsoup4']
 run_amlcompute.environment.python.conda_dependencies = CondaDependencies.create(conda_packages=conda_packages)
 
@@ -63,11 +59,19 @@ run_amlcompute.environment.python.conda_dependencies = CondaDependencies.create(
 # Step 1: Data ingestion 
 ingest_step, ingest_outputs = ingest_step(datastore, cpu_compute_target)
 
-# # Step 2: Data preprocessing 
+# Step 2: Data preprocessing 
 preprocess_step, preprocess_outputs = preprocess_step(ingest_outputs['raw_data_dir'], cpu_compute_target)
 
-# # Step 3: Train Model
-# train_step, train_outputs = train_step(data_preprocess_outputs['train_dir'], data_preprocess_outputs['valid_dir'], gpu_compute_target)
+# Step 3: Create vocab from training data
+build_vocab_step, build_vocab_output = build_vocab_step(preprocess_outputs['train_dir'], cpu_compute_target)
+
+# Step 3: Train Model
+train_step, train_outputs = train_step(
+    datastore,
+    data_preprocess_outputs['train_dir'],
+    data_preprocess_outputs['valid_dir'],
+    build_vocab_output['vocab_dir'],
+    gpu_compute_target)
 
 # # Step 4: Evaluate Model
 # evaluate_step, evaluate_outputs = evaluate_step(train_outputs['model_dir'], data_preprocess_outputs['test_dir'], gpu_compute_target)
@@ -85,5 +89,5 @@ pipeline_parameters = {
     'train_proportion': 0.8,
 }
 
-pipeline = Pipeline(workspace=workspace, steps=[ingest_step, preprocess_step])
+pipeline = Pipeline(workspace=workspace, steps=[ingest_step, preprocess_step, build_vocab_step, train_step])
 pipeline_run = Experiment(workspace, 'arXiv-NMT').submit(pipeline, pipeline_parameters=pipeline_parameters)
