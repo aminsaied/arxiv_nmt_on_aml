@@ -125,49 +125,9 @@ Painpoint:
 
 
 Broken:
-- Ingest step dumps data in 'raw_data_dir' specified as follows:
-```
-# in pipeline creation script
-workspace = Workspace.from_config()
-datastore = workspace.get_default_datastore()
-
-...
-
-# Step 1: Data ingestion 
-ingest_step, ingest_outputs = ingest_step(datastore, cpu_compute_target)
-
-# # Step 2: Data preprocessing 
-preprocess_step, preprocess_outputs = preprocess_step(ingest_outputs['raw_data_dir'], cpu_compute_target)
-```
-```
-# in ingest_step.py pipeline step specify
-raw_data_dir = PipelineData(
-    name='raw_data_dir', 
-    pipeline_output_name='raw_data_dir',
-    datastore=datastore,
-    output_mode='mount',
-    is_directory=True)
-
-outputs = [raw_data_dir]
-outputs_map = { 'raw_data_dir': raw_data_dir }
-
-step = PythonScriptStep(
-    name="Ingest",
-    script_name='ingest.py',
-    arguments=[
-        '--output_dir', raw_data_dir, 
-        '--start_date', start_date, 
-        '--end_date', end_date
-        ],
-    outputs=outputs,
-    compute_target=compute_target,
-    source_directory=os.path.dirname(os.path.abspath(__file__)),
-    runconfig=run_config,
-    allow_reuse=True
-)
-
-return step, outputs_map
-```
+- Ingest step dumps data in 'raw_data_dir', but preprocess step cannot find the directory.
+    - Ans: need to add os.makedirs.
+    - This is made very hard to debug as the ingest step is completed successfully...
 
 Things that are nice:
 - If you are _not too far_ from standard data science packages, the environment is a bonus! Most standard data science libraries are there already, and adding one or two with conda is pretty simple. (Discovering what you need to add is less nice - see pain point above)

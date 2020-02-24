@@ -770,10 +770,11 @@ def decode(args: Dict[str, str]):
             f.write(hyp_sent + '\n')
 
 
-def main():
+if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Set arguments for training NMT model')
     parser.add_argument('--train_dir', type=str)
     parser.add_argument('--valid_dir', type=str)
+    parser.add_argument('--vocab_dir', type=str)
     parser.add_argument('--cuda', type=bool, help='Set the cuda parameter')
     parser.add_argument('--seed', type=int, help='Set the seed parameter')
     parser.add_argument('--model_dir', type=str, help='Set the model_dir where the model is saved')
@@ -787,16 +788,15 @@ def main():
     parser.add_argument('--input_feed', type=bool, help='Set the input_feed parameter')
     parser.add_argument('--patience', type=int, help='Set the patience parameter')
     parser.add_argument('--max_num_trial', type=int, help='Set the max_num_trial parameter')
-    parser.add_argument('--lr_decay', type=float, help='Set the lr_decay parameter')
+    parser.add_argument('--lr_decay', type=float, help='Set the learning rate decay parameter')
     parser.add_argument('--beam_size', type=int, help='Set the beam_size parameter')
     parser.add_argument('--sample_size', type=int, help='Set the sample_size parameter')
-    parser.add_argument('--lr', type=float, help='Set the lr parameter')
+    parser.add_argument('--lr', type=float, help='Set the learning rate parameter')
     parser.add_argument('--uniform_init', type=float, help='Set the uniform_init parameter')
     parser.add_argument('--valid_niter', type=int, help='Set the valid_niter parameter')
     parser.add_argument('--dropout', type=float, help='Set the dropout parameter')
     parser.add_argument('--max_decoding_time_step', type=int, help='Set the max_decoding_time_step parameter')
     args = parser.parse_args()
-
 
     # seed the random number generators
     seed = int(args.seed)
@@ -806,7 +806,3 @@ def main():
     np.random.seed(seed * 13 // 7)
 
     train(args)
-
-
-if __name__ == '__main__':
-    main()

@@ -1,7 +1,7 @@
 import os
 from azureml.pipeline.steps import PythonScriptStep
 from azureml.core.runconfig import RunConfiguration
-from azureml.core.runconfig import DEFAULT_CPU_IMAGE
+from azureml.core.runconfig import DEFAULT_GPU_IMAGE
 from azureml.core.conda_dependencies import CondaDependencies
 from azureml.pipeline.core import PipelineData
 from azureml.pipeline.core import PipelineParameter
@@ -28,7 +28,7 @@ def train_step(datastore, train_dir, valid_dir, vocab_dir, compute_target):
 
     run_config = RunConfiguration()
     run_config.environment.docker.enabled = True
-    run_config.environment.docker.base_image = DEFAULT_CPU_IMAGE
+    run_config.environment.docker.base_image = DEFAULT_GPU_IMAGE
     run_config.environment.python.user_managed_dependencies = False
     conda_packages = ['pytorch', 'tqdm']
     run_config.environment.python.conda_dependencies = CondaDependencies.create(
@@ -46,7 +46,7 @@ def train_step(datastore, train_dir, valid_dir, vocab_dir, compute_target):
     clip_grad = PipelineParameter(name='clip_grad', default_value=5.0)
     label_smoothing = PipelineParameter(name='label_smoothing', default_value=0.0)
     log_every = PipelineParameter(name='log_every', default_value=10)
-    max_epoch = PipelineParameter(name='max_epoch', default_value=30)
+    max_epoch = PipelineParameter(name='max_epoch', default_value=2)
     input_feed = PipelineParameter(name='input_feed', default_value=True)
     patience = PipelineParameter(name='patience', default_value=5)
     max_num_trial = PipelineParameter(name='max_num_trial', default_value=5)
@@ -73,8 +73,8 @@ def train_step(datastore, train_dir, valid_dir, vocab_dir, compute_target):
     }
 
     step = PythonScriptStep(
-        name="Build Vocab",
-        script_name='build_vocab.py',
+        name="Train",
+        script_name='train.py',
         arguments=[
             '--train_dir', train_dir,
             '--valid_dir', train_dir,
