@@ -30,7 +30,7 @@ def train_step(datastore, train_dir, valid_dir, vocab_dir, compute_target):
     run_config.environment.docker.enabled = True
     run_config.environment.docker.base_image = DEFAULT_GPU_IMAGE
     run_config.environment.python.user_managed_dependencies = False
-    conda_packages = ['pytorch', 'tqdm']
+    conda_packages = ['pytorch', 'tqdm', 'nltk']
     run_config.environment.python.conda_dependencies = CondaDependencies.create(
         conda_packages=conda_packages
         )

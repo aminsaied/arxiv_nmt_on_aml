@@ -46,7 +46,7 @@ from collections import namedtuple
 
 import numpy as np
 from typing import List, Tuple, Dict, Set, Union
-from docopt import docopt # TODO: Does docopt play nice with AML?
+import argparse
 from tqdm import tqdm
 from nltk.translate.bleu_score import corpus_bleu, sentence_bleu, SmoothingFunction
 
@@ -56,14 +56,7 @@ import torch.nn.utils
 import torch.nn.functional as F
 from torch.nn.utils.rnn import pad_packed_sequence, pack_padded_sequence
 
-# safe handling of relative imports
-import os
-import inspect
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-os.sys.path.insert(0, parentdir) 
-from vocab.vocab import Vocab, VocabEntry
-
+from vocab import Vocab, VocabEntry
 from utils import read_corpus, batch_iter, LabelSmoothingLoss
 
 
