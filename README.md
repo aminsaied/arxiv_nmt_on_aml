@@ -128,6 +128,10 @@ Broken:
 - Ingest step dumps data in 'raw_data_dir', but preprocess step cannot find the directory.
     - Ans: need to add os.makedirs.
     - This is made very hard to debug as the ingest step is completed successfully...
+- Reliability issues:
+    - 70_driver_log errors
+    - Transient logging errors, very frustrating... (see image in docs)
+    - Pipeline run hangs to 3 hours (see image in docs)
 
 Things that are nice:
 - If you are _not too far_ from standard data science packages, the environment is a bonus! Most standard data science libraries are there already, and adding one or two with conda is pretty simple. (Discovering what you need to add is less nice - see pain point above)

@@ -7,40 +7,12 @@ Usage:
     nmt.py train --train-src=<file> --train-tgt=<file> --dev-src=<file> --dev-tgt=<file> --vocab=<file> [options]
     nmt.py decode [options] MODEL_PATH TEST_SOURCE_FILE OUTPUT_FILE
     nmt.py decode [options] MODEL_PATH TEST_SOURCE_FILE TEST_TARGET_FILE OUTPUT_FILE
-
-Options:
-    -h --help                               show this screen.
-    --cuda                                  use GPU
-    --train-src=<file>                      train source file
-    --train-tgt=<file>                      train target file
-    --dev-src=<file>                        dev source file
-    --dev-tgt=<file>                        dev target file
-    --vocab=<file>                          vocab file
-    --seed=<int>                            seed [default: 0]
-    --batch-size=<int>                      batch size [default: 32]
-    --embed-size=<int>                      embedding size [default: 256]
-    --hidden-size=<int>                     hidden size [default: 256]
-    --clip-grad=<float>                     gradient clipping [default: 5.0]
-    --label-smoothing=<float>               use label smoothing [default: 0.0]
-    --log-every=<int>                       log every [default: 10]
-    --max-epoch=<int>                       max epoch [default: 30]
-    --input-feed                            use input feeding
-    --patience=<int>                        wait for how many iterations to decay learning rate [default: 5]
-    --max-num-trial=<int>                   terminate training after how many trials [default: 5]
-    --lr-decay=<float>                      learning rate decay [default: 0.5]
-    --beam-size=<int>                       beam size [default: 5]
-    --sample-size=<int>                     sample size [default: 5]
-    --lr=<float>                            learning rate [default: 0.001]
-    --uniform-init=<float>                  uniformly initialize all parameters [default: 0.1]
-    --save-to=<file>                        model save path [default: model.bin]
-    --valid-niter=<int>                     perform validation after how many iterations [default: 2000]
-    --dropout=<float>                       dropout [default: 0.3]
-    --max-decoding-time-step=<int>          maximum number of decoding time steps [default: 70]
 """
 
 import math
 import pickle
 import sys
+import os
 import time
 from collections import namedtuple
 
@@ -557,11 +529,18 @@ def compute_corpus_level_bleu_score(references: List[List[str]], hypotheses: Lis
 
 
 def train(args: Dict):
-    train_data_src = read_corpus(args.train_src, source='src')
-    train_data_tgt = read_corpus(args.train_tgt, source='tgt')
 
-    dev_data_src = read_corpus(args.dev_src, source='src')
-    dev_data_tgt = read_corpus(args.dev_tgt, source='tgt')
+    train_src = os.path.join(args.train_dir, args.input_col.lower())
+    train_tgt = os.path.join(args.train_dir, args.output_col.lower())
+
+    train_data_src = read_corpus(train_src, source='src')
+    train_data_tgt = read_corpus(train_tgt, source='tgt')
+
+    dev_src = os.path.join(args.valid_dir, args.input_col.lower())
+    dev_tgt = os.path.join(args.valid_dir, args.output_col.lower())
+
+    dev_data_src = read_corpus(dev_src, source='src')
+    dev_data_tgt = read_corpus(dev_tgt, source='tgt')
 
     train_data = list(zip(train_data_src, train_data_tgt))
     dev_data = list(zip(dev_data_src, dev_data_tgt))
@@ -570,9 +549,9 @@ def train(args: Dict):
     clip_grad = float(args.clip_grad)
     valid_niter = int(args.valid_niter)
     log_every = int(args.log_every)
-    model_save_path = args.model_dir
+    model_save_path = os.path.join(args.model_dir, 'model.bin')
 
-    vocab = Vocab.load(args.vocab)
+    vocab = Vocab.load(args.vocab_dir)
 
     model = NMT(embed_size=int(args.embed_size),
                 hidden_size=int(args.hidden_size),
@@ -684,7 +663,7 @@ def train(args: Dict):
                     if patience == int(args.patience):
                         num_trial += 1
                         print('hit #%d trial' % num_trial, file=sys.stderr)
-                        if num_trial == int(args.max_num-trial):
+                        if num_trial == int(args.max_num_trial):
                             print('early stop!', file=sys.stderr)
                             exit(0)
 
@@ -712,55 +691,57 @@ def train(args: Dict):
                     exit(0)
 
 
-def beam_search(model: NMT, test_data_src: List[List[str]], beam_size: int, max_decoding_time_step: int) -> List[List[Hypothesis]]:
-    was_training = model.training
-    model.eval()
+# def beam_search(model: NMT, test_data_src: List[List[str]], beam_size: int, max_decoding_time_step: int) -> List[List[Hypothesis]]:
+#     was_training = model.training
+#     model.eval()
 
-    hypotheses = []
-    with torch.no_grad():
-        for src_sent in tqdm(test_data_src, desc='Decoding', file=sys.stdout):
-            example_hyps = model.beam_search(src_sent, beam_size=beam_size, max_decoding_time_step=max_decoding_time_step)
+#     hypotheses = []
+#     with torch.no_grad():
+#         for src_sent in tqdm(test_data_src, desc='Decoding', file=sys.stdout):
+#             example_hyps = model.beam_search(src_sent, beam_size=beam_size, max_decoding_time_step=max_decoding_time_step)
 
-            hypotheses.append(example_hyps)
+#             hypotheses.append(example_hyps)
 
-    if was_training: model.train(was_training)
+#     if was_training: model.train(was_training)
 
-    return hypotheses
+#     return hypotheses
 
 
-def decode(args: Dict[str, str]):
-    """
-    performs decoding on a test set, and save the best-scoring decoding results.
-    If the target gold-standard sentences are given, the function also computes
-    corpus-level BLEU score.
-    """
+# def decode(args: Dict[str, str]):
+#     """
+#     performs decoding on a test set, and save the best-scoring decoding results.
+#     If the target gold-standard sentences are given, the function also computes
+#     corpus-level BLEU score.
+#     """
+#     test_src_dir = os.path.join(args.test_dir, args.input_col)
+#     test_tgt_dir = os.path.join(args.test_dir, args.output_col)
 
-    print(f"load test source sentences from [{args['TEST_SOURCE_FILE']}]", file=sys.stderr)
-    test_data_src = read_corpus(args['TEST_SOURCE_FILE'], source='src')
-    if args['TEST_TARGET_FILE']:
-        print(f"load test target sentences from [{args['TEST_TARGET_FILE']}]", file=sys.stderr)
-        test_data_tgt = read_corpus(args['TEST_TARGET_FILE'], source='tgt')
+#     print(f"load test source sentences from [{test_src_dir}]", file=sys.stderr)
+#     test_data_src = read_corpus(test_src_dir, source='src')
+#     if test_tgt_dir:
+#         print(f"load test target sentences from [{test_tgt_dir}]", file=sys.stderr)
+#         test_data_tgt = read_corpus(test_tgt_dir, source='tgt')
 
-    print(f"load model from {args['MODEL_PATH']}", file=sys.stderr)
-    model = NMT.load(args['MODEL_PATH'])
+#     print(f"load model from {args.model_dir}", file=sys.stderr)
+#     model = NMT.load(args.model_dir)
 
-    if args.cuda:
-        model = model.to(torch.device("cuda:0"))
+#     if args.cuda:
+#         model = model.to(torch.device("cuda:0"))
 
-    hypotheses = beam_search(model, test_data_src,
-                             beam_size=int(args.beam_size),
-                             max_decoding_time_step=int(args.max_decoding-time-step))
+#     hypotheses = beam_search(model, test_data_src,
+#                              beam_size=int(args.beam_size),
+#                              max_decoding_time_step=int(args.max_decoding-time-step))
 
-    if args['TEST_TARGET_FILE']:
-        top_hypotheses = [hyps[0] for hyps in hypotheses]
-        bleu_score = compute_corpus_level_bleu_score(test_data_tgt, top_hypotheses)
-        print(f'Corpus BLEU: {bleu_score}', file=sys.stderr)
+#     if test_tgt_dir:
+#         top_hypotheses = [hyps[0] for hyps in hypotheses]
+#         bleu_score = compute_corpus_level_bleu_score(test_data_tgt, top_hypotheses)
+#         print(f'Corpus BLEU: {bleu_score}', file=sys.stderr)
 
-    with open(args['OUTPUT_FILE'], 'w') as f:
-        for src_sent, hyps in zip(test_data_src, hypotheses):
-            top_hyp = hyps[0]
-            hyp_sent = ' '.join(top_hyp.value)
-            f.write(hyp_sent + '\n')
+#     with open(args['OUTPUT_FILE'], 'w') as f:
+#         for src_sent, hyps in zip(test_data_src, hypotheses):
+#             top_hyp = hyps[0]
+#             hyp_sent = ' '.join(top_hyp.value)
+#             f.write(hyp_sent + '\n')
 
 
 if __name__ == '__main__':
@@ -768,6 +749,8 @@ if __name__ == '__main__':
     parser.add_argument('--train_dir', type=str)
     parser.add_argument('--valid_dir', type=str)
     parser.add_argument('--vocab_dir', type=str)
+    parser.add_argument('--input_col', type=str, help='The name of the input data column')
+    parser.add_argument('--output_col', type=str, help='The name of the output data column')
     parser.add_argument('--cuda', type=bool, help='Set the cuda parameter')
     parser.add_argument('--seed', type=int, help='Set the seed parameter')
     parser.add_argument('--model_dir', type=str, help='Set the model_dir where the model is saved')
@@ -797,5 +780,8 @@ if __name__ == '__main__':
     if args.cuda:
         torch.cuda.manual_seed(seed)
     np.random.seed(seed * 13 // 7)
+
+    if not os.path.exists(args.model_dir):
+        os.makedirs(args.model_dir)
 
     train(args)
