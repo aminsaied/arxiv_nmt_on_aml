@@ -418,7 +418,7 @@ class NMT(nn.Module):
 
             samples.append(y_t)
 
-            sample_ends |= torch.eq(y_t, eos_id).byte()
+            sample_ends |= torch.eq(y_t, eos_id)
             sample_scores = sample_scores + log_p_y_t * (1. - sample_ends.float())
 
             if torch.all(sample_ends):
