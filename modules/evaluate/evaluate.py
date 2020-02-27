@@ -58,8 +58,8 @@ def decode(args: Dict[str, str]):
     If the target gold-standard sentences are given, the function also computes
     corpus-level BLEU score.
     """
-    test_src_dir = os.path.join(args.test_dir, args.input_col)
-    test_tgt_dir = os.path.join(args.test_dir, args.output_col)
+    test_src_dir = os.path.join(args.test_dir, args.input_col.lower())
+    test_tgt_dir = os.path.join(args.test_dir, args.output_col.lower())
 
     print(f"load test source sentences from [{test_src_dir}]", file=sys.stderr)
     test_data_src = read_corpus(test_src_dir, source='src')
