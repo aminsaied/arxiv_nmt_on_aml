@@ -132,6 +132,10 @@ Broken:
     - 70_driver_log errors
     - Transient logging errors, very frustrating... (see image in docs)
     - Pipeline run hangs to 3 hours (see image in docs)
+- Deprecation warnings
+    - Related to above - pytorch was throwing deprecation warnings that caused the log files to get really large (40+MiB)
+    - AML was unable to fetch the log files
+    - Seemed to cause the pipeline to run really slowly
 
 Things that are nice:
 - If you are _not too far_ from standard data science packages, the environment is a bonus! Most standard data science libraries are there already, and adding one or two with conda is pretty simple. (Discovering what you need to add is less nice - see pain point above)

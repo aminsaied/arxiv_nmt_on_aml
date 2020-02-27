@@ -87,6 +87,7 @@ pipeline_parameters = {
     'input_col': 'Abstract',
     'output_col': 'Title',
     'train_proportion': 0.8,
+    'max_epoch': 1,
 }
 
 pipeline = Pipeline(workspace=workspace, steps=[ingest_step, preprocess_step, build_vocab_step, train_step])

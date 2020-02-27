@@ -760,7 +760,7 @@ if __name__ == '__main__':
     parser.add_argument('--clip_grad', type=float, help='Set the clip_grad parameter')
     parser.add_argument('--label_smoothing', type=float, help='Set the label_smoothing parameter')
     parser.add_argument('--log_every', type=int, help='Set the log_every parameter')
-    parser.add_argument('--max_epoch', type=int, help='Set the max_epoch parameter')
+    parser.add_argument('--max_epoch', type=int, default=2, help='Set the max_epoch parameter')
     parser.add_argument('--input_feed', type=bool, help='Set the input_feed parameter')
     parser.add_argument('--patience', type=int, help='Set the patience parameter')
     parser.add_argument('--max_num_trial', type=int, help='Set the max_num_trial parameter')
