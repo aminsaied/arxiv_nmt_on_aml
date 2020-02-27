@@ -73,8 +73,8 @@ train_step, train_outputs = train_step(
     build_vocab_outputs['vocab_dir'],
     gpu_compute_target)
 
-# # Step 5: Evaluate Model
-# evaluate_step, evaluate_outputs = evaluate_step(train_outputs['model_dir'], data_preprocess_outputs['test_dir'], gpu_compute_target)
+# Step 5: Evaluate Model
+evaluate_step, evaluate_outputs = evaluate_step(train_outputs['model_dir'], data_preprocess_outputs['test_dir'], gpu_compute_target)
 
 # # Step 6: Deploy Model
 # deploy_step, deploy_outputs = deploy_step(train_outputs['model_dir'], evaluate_outputs['accuracy_file'], data_preprocess_outputs['test_dir'], cpu_compute_target)
@@ -90,5 +90,5 @@ pipeline_parameters = {
     'max_epoch': 1,
 }
 
-pipeline = Pipeline(workspace=workspace, steps=[ingest_step, preprocess_step, build_vocab_step, train_step])
+pipeline = Pipeline(workspace=workspace, steps=[ingest_step, preprocess_step, build_vocab_step, train_step, evaluate_step])
 pipeline_run = Experiment(workspace, 'arXiv-NMT').submit(pipeline, pipeline_parameters=pipeline_parameters)
