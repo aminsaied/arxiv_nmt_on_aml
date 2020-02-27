@@ -23,7 +23,7 @@ def deploy_step(model_dir, eval_dir, test_dir, compute_target):
     scoring_url = PipelineData(
         name='scoring_url', 
         pipeline_output_name='scoring_url',
-        datastore=accuracy_file.datastore,
+        datastore=eval_dir.datastore,
         output_mode='mount',
         is_directory=False)
 

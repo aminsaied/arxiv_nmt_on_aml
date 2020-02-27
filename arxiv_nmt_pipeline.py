@@ -10,7 +10,7 @@ from modules.preprocess.preprocess_step import preprocess_step
 from modules.train.build_vocab_step import build_vocab_step
 from modules.train.train_step import train_step
 from modules.evaluate.evaluate_step import evaluate_step
-# from modules.deploy.deploy_step import
+from modules.deploy.deploy_step import deploy_step
 from azureml.core.compute import AmlCompute, ComputeTarget
 
 # Get workspace, datastores, and compute targets
@@ -76,8 +76,8 @@ train_step, train_outputs = train_step(
 # Step 5: Evaluate Model
 evaluate_step, evaluate_outputs = evaluate_step(datastore, preprocess_outputs['test_dir'], train_outputs['model_dir'], gpu_compute_target)
 
-# # Step 6: Deploy Model
-# deploy_step, deploy_outputs = deploy_step(train_outputs['model_dir'], evaluate_outputs['accuracy_file'], preprocess_outputs['test_dir'], cpu_compute_target)
+# Step 6: Deploy Model
+deploy_step, deploy_outputs = deploy_step(train_outputs['model_dir'], evaluate_outputs['eval_dir'], preprocess_outputs['test_dir'], cpu_compute_target)
 
 # Submit pipeline
 print('Submitting pipeline ...')
@@ -90,5 +90,5 @@ pipeline_parameters = {
     'max_epoch': 1,
 }
 
-pipeline = Pipeline(workspace=workspace, steps=[ingest_step, preprocess_step, build_vocab_step, train_step, evaluate_step])
+pipeline = Pipeline(workspace=workspace, steps=[ingest_step, preprocess_step, build_vocab_step, train_step, evaluate_step, deploy_step])
 pipeline_run = Experiment(workspace, 'arXiv-NMT').submit(pipeline, pipeline_parameters=pipeline_parameters)

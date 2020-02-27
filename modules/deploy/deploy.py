@@ -17,7 +17,7 @@ def register_model(model_dir, model_name, accuracy, test_dir, workspace):
             'accuracy': accuracy, 
             'test_data': test_dir
         },
-        description='Object classifier',
+        description='Arxiv text model',
         workspace=workspace)
     return model
 

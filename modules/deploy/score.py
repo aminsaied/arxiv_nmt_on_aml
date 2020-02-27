@@ -5,7 +5,6 @@ from collections import namedtuple
 from azureml.core.model import Model
 
 from nmt import NMT
-from utils import read_corpus
 
 BEAM_SIZE = 5
 MAX_DECODING_TIME_STEP = 70
