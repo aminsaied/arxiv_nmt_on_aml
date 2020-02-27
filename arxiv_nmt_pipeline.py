@@ -83,7 +83,7 @@ train_step, train_outputs = train_step(
 print('Submitting pipeline ...')
 pipeline_parameters = {
     'start_date': '2015-01-01',
-    'end_date': '2015-02-01',
+    'end_date': '2015-01-02',
     'input_col': 'Abstract',
     'output_col': 'Title',
     'train_proportion': 0.8,
