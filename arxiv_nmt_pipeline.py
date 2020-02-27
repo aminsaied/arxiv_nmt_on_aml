@@ -28,15 +28,15 @@ cpu_compute_config = AmlCompute.provisioning_configuration(vm_size='STANDARD_D2_
 cpu_compute_target = ComputeTarget.create(workspace, cpu_cluster_name, cpu_compute_config)
 cpu_compute_target.wait_for_completion(show_output=True)
 
-# Create Run Configuration
-# Create a new runconfig object
-run_amlcompute = RunConfiguration()
-run_amlcompute.target = cpu_compute_target
-run_amlcompute.environment.docker.enabled = True
-run_amlcompute.environment.docker.base_image = DEFAULT_CPU_IMAGE
-run_amlcompute.environment.python.user_managed_dependencies = False
-conda_packages = ['beautifulsoup4']
-run_amlcompute.environment.python.conda_dependencies = CondaDependencies.create(conda_packages=conda_packages)
+# # Create Run Configuration
+# # Create a new runconfig object
+# run_amlcompute = RunConfiguration()
+# run_amlcompute.target = cpu_compute_target
+# run_amlcompute.environment.docker.enabled = True
+# run_amlcompute.environment.docker.base_image = DEFAULT_CPU_IMAGE
+# run_amlcompute.environment.python.user_managed_dependencies = False
+# conda_packages = ['beautifulsoup4']
+# run_amlcompute.environment.python.conda_dependencies = CondaDependencies.create(conda_packages=conda_packages)
 
 # TODO: Use env.yml to specify conda dependencies instead of
 # manually specifying list of required packages
