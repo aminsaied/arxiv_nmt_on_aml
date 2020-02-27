@@ -78,18 +78,13 @@ def decode(args: Dict[str, str]):
                              beam_size=int(args.beam_size),
                              max_decoding_time_step=int(args.max_decoding_time_step))
 
-    if test_tgt_dir:
-        top_hypotheses = [hyps[0] for hyps in hypotheses]
-        bleu_score = compute_corpus_level_bleu_score(test_data_tgt, top_hypotheses)
-        print(f'Corpus BLEU: {bleu_score}', file=sys.stderr)
+    top_hypotheses = [hyps[0] for hyps in hypotheses]
+    bleu_score = compute_corpus_level_bleu_score(test_data_tgt, top_hypotheses)
+    print(f'Corpus BLEU: {bleu_score}', file=sys.stderr)
 
     output_path = os.path.join(args.eval_dir, 'decode.txt')
     with open(output_path, 'w') as f:
-        for src_sent, hyps in zip(test_data_src, hypotheses):
-            top_hyp = hyps[0]
-            hyp_sent = ' '.join(top_hyp.value)
-            f.write(hyp_sent + '\n')
-
+        f.write(str(bleu_score))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Set arguments for training NMT model')
