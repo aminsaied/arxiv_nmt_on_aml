@@ -9,7 +9,7 @@ from modules.ingest.ingest_step import ingest_step
 from modules.preprocess.preprocess_step import preprocess_step
 from modules.train.build_vocab_step import build_vocab_step
 from modules.train.train_step import train_step
-# from modules.evaluate.evaluate_step import evaluate_step
+from modules.evaluate.evaluate_step import evaluate_step
 # from modules.deploy.deploy_step import
 from azureml.core.compute import AmlCompute, ComputeTarget
 
