@@ -76,7 +76,7 @@ def decode(args: Dict[str, str]):
 
     hypotheses = beam_search(model, test_data_src,
                              beam_size=int(args.beam_size),
-                             max_decoding_time_step=int(args.max_decoding-time-step))
+                             max_decoding_time_step=int(args.max_decoding_time_step))
 
     if test_tgt_dir:
         top_hypotheses = [hyps[0] for hyps in hypotheses]
