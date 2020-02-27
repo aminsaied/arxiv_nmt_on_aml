@@ -56,7 +56,7 @@ def evaluate_step(datastore, test_dir, model_dir, compute_target):
 
     step = PythonScriptStep(
         name="Evaluate",
-        script_name='evalulate.py',
+        script_name='evaluate.py',
         arguments=[
             '--test_dir', test_dir,
             '--model_dir', model_dir,
