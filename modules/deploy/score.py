@@ -5,13 +5,15 @@ from collections import namedtuple
 from azureml.core.model import Model
 
 from nmt import NMT
+from text_cleaner import TextCleaner
 
 BEAM_SIZE = 5
 MAX_DECODING_TIME_STEP = 70
 Hypothesis = namedtuple('Hypothesis', ['value', 'score'])
 
 def read_input_data(input_sentence):
-    return input_sentence.strip().split(' ')
+    processed_input_sentence = TextCleaner._clean_text(input_sentence)
+    return processed_input_sentence.strip().split(' ')
 
 def beam_search(model: NMT, input_sent: List[str], beam_size: int, max_decoding_time_step: int) -> List[List[Hypothesis]]:
     hypotheses = []
