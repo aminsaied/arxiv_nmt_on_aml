@@ -23,8 +23,8 @@ def beam_search(model, input_sent, beam_size, max_decoding_time_step):
 
 def init():
     global model
-    model_path = Model.get_model_path('arxiv-nmt-pipeline')
-    # model_path = os.path.join(model_dir, 'model.bin')
+    model_dir = Model.get_model_path('arxiv-nmt-pipeline')
+    model_path = os.path.join(model_dir, 'model.bin')
     model = NMT.load(model_path)
     model.eval()
     
