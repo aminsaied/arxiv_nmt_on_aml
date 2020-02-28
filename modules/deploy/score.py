@@ -29,15 +29,16 @@ def init():
     model.eval()
     
 def run(input_data):
-    deser_sent = read_input_data(json.loads(input_data)['data'])
+    input_sentence = read_input_data(json.loads(input_data)['data'])
 
     # get prediction
-    hypothesis = beam_search(model, input_data_deserialized,
+    hypothesis = beam_search(model, input_sentence,
                              beam_size=BEAM_SIZE,
                              max_decoding_time_step=MAX_DECODING_TIME_STEP)
 
-    top_hyp = hypothesis[0]
-    hyp_sent = ' '.join(top_hyp.value)
+    s1 = hypothesis[0]
+    s2 = hypothesis[1] 
+    s3 = hypothesis[2]
 
-    result = json.dumps({"sentence": hyp_sent, "probability": str(top_hyp.score)})
+    result = json.dumps({"sentence1": s1.value, "sentence2": s2.value, "sentence3": s3.value})
     return result
