@@ -126,7 +126,8 @@ Painpoint:
     - This issue is easily solved if you've seen it before, very hard to solve otherwise!
 - Be careful changing names of modules!
     - I changed the name of a module, but forgot to change one of the places it was being called. This was causing strange, hard to debug errors pointing to things that were no longer there in my code. The answer (I think!) is that aml is caching the steps you uploaded previously, so it was still pointing to code that no longer exists?
-
+- Deployment:
+    - Need to create a conda environment for the service to run on. A simple way to do so would be nice.
 
 Broken:
 - Ingest step dumps data in 'raw_data_dir', but preprocess step cannot find the directory.

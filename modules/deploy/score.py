@@ -15,7 +15,7 @@ def read_input_data(input_sentence):
     processed_input_sentence = TextCleaner._clean_text(input_sentence)
     return processed_input_sentence.strip().split(' ')
 
-def beam_search(model: NMT, input_sent: List[str], beam_size: int, max_decoding_time_step: int) -> List[List[Hypothesis]]:
+def beam_search(model, input_sent, beam_size, max_decoding_time_step):
     hypotheses = []
     with torch.no_grad():
         hypothesis = model.beam_search(input_sent, beam_size, max_decoding_time_step)
