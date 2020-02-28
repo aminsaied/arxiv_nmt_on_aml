@@ -691,59 +691,6 @@ def train(args: Dict):
                     exit(0)
 
 
-# def beam_search(model: NMT, test_data_src: List[List[str]], beam_size: int, max_decoding_time_step: int) -> List[List[Hypothesis]]:
-#     was_training = model.training
-#     model.eval()
-
-#     hypotheses = []
-#     with torch.no_grad():
-#         for src_sent in tqdm(test_data_src, desc='Decoding', file=sys.stdout):
-#             example_hyps = model.beam_search(src_sent, beam_size=beam_size, max_decoding_time_step=max_decoding_time_step)
-
-#             hypotheses.append(example_hyps)
-
-#     if was_training: model.train(was_training)
-
-#     return hypotheses
-
-
-# def decode(args: Dict[str, str]):
-#     """
-#     performs decoding on a test set, and save the best-scoring decoding results.
-#     If the target gold-standard sentences are given, the function also computes
-#     corpus-level BLEU score.
-#     """
-#     test_src_dir = os.path.join(args.test_dir, args.input_col)
-#     test_tgt_dir = os.path.join(args.test_dir, args.output_col)
-
-#     print(f"load test source sentences from [{test_src_dir}]", file=sys.stderr)
-#     test_data_src = read_corpus(test_src_dir, source='src')
-#     if test_tgt_dir:
-#         print(f"load test target sentences from [{test_tgt_dir}]", file=sys.stderr)
-#         test_data_tgt = read_corpus(test_tgt_dir, source='tgt')
-
-#     print(f"load model from {args.model_dir}", file=sys.stderr)
-#     model = NMT.load(args.model_dir)
-
-#     if args.cuda:
-#         model = model.to(torch.device("cuda:0"))
-
-#     hypotheses = beam_search(model, test_data_src,
-#                              beam_size=int(args.beam_size),
-#                              max_decoding_time_step=int(args.max_decoding-time-step))
-
-#     if test_tgt_dir:
-#         top_hypotheses = [hyps[0] for hyps in hypotheses]
-#         bleu_score = compute_corpus_level_bleu_score(test_data_tgt, top_hypotheses)
-#         print(f'Corpus BLEU: {bleu_score}', file=sys.stderr)
-
-#     with open(args['OUTPUT_FILE'], 'w') as f:
-#         for src_sent, hyps in zip(test_data_src, hypotheses):
-#             top_hyp = hyps[0]
-#             hyp_sent = ' '.join(top_hyp.value)
-#             f.write(hyp_sent + '\n')
-
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Set arguments for training NMT model')
     parser.add_argument('--train_dir', type=str)

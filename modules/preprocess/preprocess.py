@@ -12,8 +12,8 @@ parser.add_argument('--train_proportion', type=float, default=0.8, help='Proport
 parser.add_argument('--train_dir', type=str, help='Directory to output the processed training data')
 parser.add_argument('--valid_dir', type=str, help='Directory to output the processed valid data')
 parser.add_argument('--test_dir', type=str, help='Directory to output the processed test data')
-parser.add_argument('--input_col', type=str, default='Abstract', help='Name of the input data column')
-parser.add_argument('--output_col', type=str, default='Title', help='Name of the output data column')
+parser.add_argument('--input_col', type=str, help='Name of the input data column')
+parser.add_argument('--output_col', type=str, help='Name of the output data column')
 args = parser.parse_args()
 
 # Get arguments from parser

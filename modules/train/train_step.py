@@ -36,8 +36,8 @@ def train_step(datastore, train_dir, valid_dir, vocab_dir, compute_target):
         )
 
     # set hyperparameters of the model training step
-    input_col = PipelineParameter(name='input_col', default_value='Abstract')
-    output_col = PipelineParameter(name='output_col', default_value='Title')
+    input_col = PipelineParameter(name='input_col', default_value='Title')
+    output_col = PipelineParameter(name='output_col', default_value='Abstract')
     cuda = PipelineParameter(name='cuda', default_value=True)
     seed = PipelineParameter(name='seed', default_value=0)
     batch_size = PipelineParameter(name='batch_size', default_value=32)

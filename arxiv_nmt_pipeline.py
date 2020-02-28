@@ -28,24 +28,6 @@ cpu_compute_config = AmlCompute.provisioning_configuration(vm_size='STANDARD_D2_
 cpu_compute_target = ComputeTarget.create(workspace, cpu_cluster_name, cpu_compute_config)
 cpu_compute_target.wait_for_completion(show_output=True)
 
-# # Create Run Configuration
-# # Create a new runconfig object
-# run_amlcompute = RunConfiguration()
-# run_amlcompute.target = cpu_compute_target
-# run_amlcompute.environment.docker.enabled = True
-# run_amlcompute.environment.docker.base_image = DEFAULT_CPU_IMAGE
-# run_amlcompute.environment.python.user_managed_dependencies = False
-# conda_packages = ['beautifulsoup4']
-# run_amlcompute.environment.python.conda_dependencies = CondaDependencies.create(conda_packages=conda_packages)
-
-# TODO: Use env.yml to specify conda dependencies instead of
-# manually specifying list of required packages
-# # Set up conda environment
-# conda_env = Environment.from_conda_specification(name="cornetto", file_path="env.yml")
-# # Attach conda environment specified above to run config
-# runconfig.run_config.environment = conda_env
-
-
 # Create GPU compute target
 print('Creating GPU compute target ...')
 gpu_cluster_name = 'gpucluster'
@@ -84,11 +66,11 @@ print('Submitting pipeline ...')
 pipeline_parameters = {
     'start_date': '2015-01-01',
     'end_date': '2015-01-02',
-    'input_col': 'Abstract',
-    'output_col': 'Title',
+    'input_col': 'Title',
+    'output_col': 'Abstract',
     'train_proportion': 0.8,
     'max_epoch': 1,
 }
 
 pipeline = Pipeline(workspace=workspace, steps=[ingest_step, preprocess_step, build_vocab_step, train_step, evaluate_step, deploy_step])
-pipeline_run = Experiment(workspace, 'arXiv-NMT').submit(pipeline, pipeline_parameters=pipeline_parameters)
+pipeline_run = Experiment(workspace, 'arXiv-NMT-reverse').submit(pipeline, pipeline_parameters=pipeline_parameters)

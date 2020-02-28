@@ -7,8 +7,8 @@ from vocab import Vocab
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Preprocess text data arg parser')
     parser.add_argument('--train_dir', type=str, help='Directory where training data is stored')
-    parser.add_argument('--input_col', type=str, default='Abstract', help='Input column name for training data')
-    parser.add_argument('--output_col', type=str, default='Title', help='Output column name for training data')
+    parser.add_argument('--input_col', type=str, help='Input column name for training data')
+    parser.add_argument('--output_col', type=str, help='Output column name for training data')
     parser.add_argument('--vocab_dir', type=str, help='Directory to output the vocab')
     parser.add_argument('--size', type=int, default=50000, help='Vocab size')
     parser.add_argument('--freq_cutoff', type=int, default=2, help='Frequency cutoff')

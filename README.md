@@ -124,10 +124,25 @@ Painpoint:
     - Wasted 2 days figuring this out: https://docs.microsoft.com/en-us/azure/machine-learning/how-to-debug-pipelines#troubleshooting-tips
     - Solution: makesure you use `os.makedirs(args.output_dir, exist_ok=True)`
     - This issue is easily solved if you've seen it before, very hard to solve otherwise!
+        - Especially confusing: first script step does not throw an error when writing to the directory, but second step fails to locate it. Makes user think the error is something to do with the second step, or at least the output of the first step.
 - Be careful changing names of modules!
     - I changed the name of a module, but forgot to change one of the places it was being called. This was causing strange, hard to debug errors pointing to things that were no longer there in my code. The answer (I think!) is that aml is caching the steps you uploaded previously, so it was still pointing to code that no longer exists?
 - Deployment:
-    - Need to create a conda environment for the service to run on. A simple way to do so would be nice.
+    - Need to create a conda environment for the service to run on. A simple way to do so would be nice [DOCUMENTATION]
+- Confusion around pipeline parameters:
+    - In the "global" definition of the pipeline:
+        ```
+        pipeline = Pipeline(workspace=workspace, steps=[ingest_step, preprocess_step, build_vocab_step, train_step, evaluate_step, deploy_step])
+        pipeline_run = Experiment(workspace, 'arXiv-NMT-reverse').submit(pipeline, pipeline_parameters=pipeline_parameters)
+        ```
+    we pass in `pipeline_parameters`. The individual pipeline steps have e.g. the following `PipelineParameter` object:
+        ```
+        input_col = PipelineParameter(name='input_col', default_value='Abstract')
+        ```
+    with default values. The [documentation](https://docs.microsoft.com/en-us/python/api/azureml-pipeline-core/azureml.pipeline.core.graph.pipelineparameter?view=azure-ml-py) states that
+    > If "pipeline_arg" was not specified in the pipeline_parameters dictionary, the default value of the PipelineParameter provided when the Pipeline was constructed would be used
+    I assume therefore that specifying the pipeline parameter will override the default value. However, when I change the pipeline parameters the pipeline does not detect any change and uses the cached results (in other words, it ignores the modified pipeline parameters).
+    - Even changing the default value in the `PipelineParameter` does not pick up the change.
 
 Broken:
 - Ingest step dumps data in 'raw_data_dir', but preprocess step cannot find the directory.

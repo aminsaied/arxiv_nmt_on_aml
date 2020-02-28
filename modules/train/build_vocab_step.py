@@ -29,8 +29,8 @@ def build_vocab_step(train_dir, compute_target):
         conda_packages=conda_packages
         )
 
-    input_col = PipelineParameter(name='input_col', default_value='Abstract')
-    output_col = PipelineParameter(name='output_col', default_value='Title')
+    input_col = PipelineParameter(name='input_col', default_value='Title')
+    output_col = PipelineParameter(name='output_col', default_value='Abstract')
     size = PipelineParameter(name='size', default_value=50000)
     freq_cutoff = PipelineParameter(name='freq_cutoff', default_value=2)
 

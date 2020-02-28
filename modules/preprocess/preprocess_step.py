@@ -23,8 +23,8 @@ def preprocess_step(raw_data_dir, compute_target):
     # run_config.environment.python.conda_dependencies = CondaDependencies.create(pip_packages=['opencv-python==4.1.1.26', 'imutils==0.5.3'])
     run_config.environment.docker.enabled = True
 
-    input_col = PipelineParameter(name='input_col', default_value='Abstract')
-    output_col = PipelineParameter(name='output_col', default_value='Title')
+    input_col = PipelineParameter(name='input_col', default_value='Title')
+    output_col = PipelineParameter(name='output_col', default_value='Abstract')
     train_proportion = PipelineParameter(name='train_proportion', default_value=0.8)
 
     train_dir = PipelineData(
