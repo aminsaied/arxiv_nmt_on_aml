@@ -36,9 +36,9 @@ def run(input_data):
                              beam_size=BEAM_SIZE,
                              max_decoding_time_step=MAX_DECODING_TIME_STEP)
 
-    s1 = hypothesis[0]
-    s2 = hypothesis[1] 
-    s3 = hypothesis[2]
+    s1 = ' '.join(hypothesis[0].value)
+    s2 = ' '.join(hypothesis[1].value)
+    s3 = ' '.join(hypothesis[2].value)
 
-    result = json.dumps({"sentence1": s1.value, "sentence2": s2.value, "sentence3": s3.value})
+    result = json.dumps({"sentence1": s1, "sentence2": s2, "sentence3": s3})
     return result
