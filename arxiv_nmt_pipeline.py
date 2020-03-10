@@ -7,7 +7,7 @@ from azureml.core import Experiment
 from azureml.pipeline.core import Pipeline
 from modules.ingest.ingest_step import ingest_step
 from modules.preprocess.preprocess_step import preprocess_step
-from modules.train.build_vocab_step import build_vocab_step
+from modules.build_vocab.build_vocab_step import build_vocab_step
 from modules.train.train_step import train_step
 from modules.evaluate.evaluate_step import evaluate_step
 from modules.deploy.deploy_step import deploy_step
@@ -66,11 +66,11 @@ print('Submitting pipeline ...')
 pipeline_parameters = {
     'start_date': '2015-01-01',
     'end_date': '2015-01-02',
-    'input_col': 'Title',
-    'output_col': 'Abstract',
+    'input_col': 'Abstract',
+    'output_col': 'Title',
     'train_proportion': 0.8,
     'max_epoch': 1,
 }
 
 pipeline = Pipeline(workspace=workspace, steps=[ingest_step, preprocess_step, build_vocab_step, train_step, evaluate_step, deploy_step])
-pipeline_run = Experiment(workspace, 'arXiv-NMT-reverse').submit(pipeline, pipeline_parameters=pipeline_parameters)
+pipeline_run = Experiment(workspace, 'arXiv-NMT').submit(pipeline, pipeline_parameters=pipeline_parameters)

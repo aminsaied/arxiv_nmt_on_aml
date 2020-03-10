@@ -5,6 +5,8 @@ from azureml.core.runconfig import DEFAULT_GPU_IMAGE
 from azureml.core.conda_dependencies import CondaDependencies
 from azureml.pipeline.core import PipelineData
 from azureml.pipeline.core import PipelineParameter
+from azureml.train.dnn import PyTorch, Mpi
+
         
 def train_step(datastore, train_dir, valid_dir, vocab_dir, compute_target):
     '''
@@ -72,45 +74,87 @@ def train_step(datastore, train_dir, valid_dir, vocab_dir, compute_target):
         'model_dir': model_dir,
     }
 
-    step = PythonScriptStep(
-        name="Train",
-        script_name='train.py',
-        arguments=[
-            '--train_dir', train_dir,
-            '--valid_dir', train_dir,
-            '--input_col', input_col,
-            '--output_col', output_col,
-            '--vocab_dir', vocab_dir,
-            '--model_dir', model_dir,
-            '--input_col', input_col,
-            '--output_col', output_col,
-            '--cuda', cuda,
-            '--seed', seed,
-            '--batch_size', batch_size,
-            '--embed_size', embed_size,
-            '--hidden_size', hidden_size,
-            '--clip_grad', clip_grad,
-            '--label_smoothing', label_smoothing,
-            '--log_every', log_every,
-            '--max_epoch', max_epoch,
-            '--input_feed', input_feed,
-            '--patience', patience,
-            '--max_num_trial', max_num_trial,
-            '--lr_decay', lr_decay,
-            '--beam_size', beam_size,
-            '--sample_size', sample_size,
-            '--lr', lr,
-            '--uniform_init', uniform_init,
-            '--valid_niter', valid_niter,
-            '--dropout', dropout,
-            '--max_decoding_time_step', max_decoding_time_step,
-        ],
-        inputs=[train_dir, valid_dir, vocab_dir],
-        outputs=outputs,
+    # step = PythonScriptStep(
+    #     name="Train",
+    #     script_name='train.py',
+    #     arguments=[
+    #         '--train_dir', train_dir,
+    #         '--valid_dir', valid_dir,
+    #         '--input_col', input_col,
+    #         '--output_col', output_col,
+    #         '--vocab_dir', vocab_dir,
+    #         '--model_dir', model_dir,
+    #         '--input_col', input_col,
+    #         '--output_col', output_col,
+    #         '--cuda', cuda,
+    #         '--seed', seed,
+    #         '--batch_size', batch_size,
+    #         '--embed_size', embed_size,
+    #         '--hidden_size', hidden_size,
+    #         '--clip_grad', clip_grad,
+    #         '--label_smoothing', label_smoothing,
+    #         '--log_every', log_every,
+    #         '--max_epoch', max_epoch,
+    #         '--input_feed', input_feed,
+    #         '--patience', patience,
+    #         '--max_num_trial', max_num_trial,
+    #         '--lr_decay', lr_decay,
+    #         '--beam_size', beam_size,
+    #         '--sample_size', sample_size,
+    #         '--lr', lr,
+    #         '--uniform_init', uniform_init,
+    #         '--valid_niter', valid_niter,
+    #         '--dropout', dropout,
+    #         '--max_decoding_time_step', max_decoding_time_step,
+    #     ],
+    #     inputs=[train_dir, valid_dir, vocab_dir],
+    #     outputs=outputs,
+    #     compute_target=compute_target,
+    #     runconfig=run_config,
+    #     source_directory=os.path.dirname(os.path.abspath(__file__)),
+    #     allow_reuse=True
+    # )
+
+    script_params = {
+        '--train_dir': train_dir,
+        '--valid_dir': valid_dir,
+        '--input_col': input_col,
+        '--output_col': output_col,
+        '--vocab_dir': vocab_dir,
+        '--model_dir': model_dir,
+        '--input_col': input_col,
+        '--output_col': output_col,
+        '--cuda': cuda,
+        '--seed': seed,
+        '--batch_size': batch_size,
+        '--embed_size': embed_size,
+        '--hidden_size': hidden_size,
+        '--clip_grad': clip_grad,
+        '--label_smoothing': label_smoothing,
+        '--log_every': log_every,
+        '--max_epoch': max_epoch,
+        '--input_feed': input_feed,
+        '--patience': patience,
+        '--max_num_trial': max_num_trial,
+        '--lr_decay': lr_decay,
+        '--beam_size': beam_size,
+        '--sample_size': sample_size,
+        '--lr': lr,
+        '--uniform_init': uniform_init,
+        '--valid_niter': valid_niter,
+        '--dropout': dropout,
+        '--max_decoding_time_step': max_decoding_time_step,
+        '--model_dir': model_dir,
+   }
+
+    estimator = PyTorch(
+        source_directory=project_folder,
         compute_target=compute_target,
-        runconfig=run_config,
+        entry_script='train.py',
+        script_params=script_params,
+        node_count=2,
+        distributed_training=Mpi(),
         source_directory=os.path.dirname(os.path.abspath(__file__)),
-        allow_reuse=True
-    )
+        use_gpu=True)
 
     return step, outputs_map

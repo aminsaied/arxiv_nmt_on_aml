@@ -27,6 +27,8 @@ import torch.nn as nn
 import torch.nn.utils
 import torch.nn.functional as F
 from torch.nn.utils.rnn import pad_packed_sequence, pack_padded_sequence
+import torch.utils.data.distributed
+import horovod.torch as hvd
 
 from vocab import Vocab, VocabEntry
 from utils import read_corpus, batch_iter, LabelSmoothingLoss
@@ -725,6 +727,7 @@ if __name__ == '__main__':
     seed = int(args.seed)
     torch.manual_seed(seed)
     if args.cuda:
+        torch.cuda.set_device(hvd.local_rank())
         torch.cuda.manual_seed(seed)
     np.random.seed(seed * 13 // 7)
 
