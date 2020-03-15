@@ -1,11 +1,15 @@
 import os
 from azureml.pipeline.steps import PythonScriptStep
+from azureml.pipeline.steps import EstimatorStep
+# from azureml.pipeline.steps import MpiStep
+from azureml.contrib.pipeline.steps import ParallelRunConfig
+from azureml.contrib.pipeline.steps import ParallelRunStep
+from azureml.core import Environment
 from azureml.core.runconfig import RunConfiguration
 from azureml.core.runconfig import DEFAULT_GPU_IMAGE
 from azureml.core.conda_dependencies import CondaDependencies
 from azureml.pipeline.core import PipelineData
 from azureml.pipeline.core import PipelineParameter
-from azureml.train.dnn import PyTorch, Mpi
 
         
 def train_step(datastore, train_dir, valid_dir, vocab_dir, compute_target):
@@ -36,6 +40,29 @@ def train_step(datastore, train_dir, valid_dir, vocab_dir, compute_target):
     run_config.environment.python.conda_dependencies = CondaDependencies.create(
         conda_packages=conda_packages
         )
+
+    # parallel_cd = CondaDependencies()
+
+    # parallel_cd.add_channel("pytorch")
+    # parallel_cd.add_conda_package("pytorch")
+    # parallel_cd.add_conda_package("torchvision")
+    # parallel_cd.add_conda_package("tqdm")
+    # parallel_cd.add_conda_package("nltk")
+
+    # parallel_env = Environment(name="styleenvironment")
+    # parallel_env.python.conda_dependencies=parallel_cd
+    # parallel_env.docker.base_image = DEFAULT_GPU_IMAGE
+
+    # parallel_run_config = ParallelRunConfig(
+    #                     environment=parallel_env,
+    #                     entry_script='train.py',
+    #                     output_action='summary_only',
+    #                     mini_batch_size="1",
+    #                     error_threshold=1,
+    #                     source_directory=os.path.dirname(os.path.abspath(__file__)),
+    #                     compute_target=compute_target, 
+    #                     node_count=3)
+
 
     # set hyperparameters of the model training step
     input_col = PipelineParameter(name='input_col', default_value='Title')
@@ -74,87 +101,23 @@ def train_step(datastore, train_dir, valid_dir, vocab_dir, compute_target):
         'model_dir': model_dir,
     }
 
-    # step = PythonScriptStep(
-    #     name="Train",
-    #     script_name='train.py',
-    #     arguments=[
-    #         '--train_dir', train_dir,
-    #         '--valid_dir', valid_dir,
-    #         '--input_col', input_col,
-    #         '--output_col', output_col,
-    #         '--vocab_dir', vocab_dir,
-    #         '--model_dir', model_dir,
-    #         '--input_col', input_col,
-    #         '--output_col', output_col,
-    #         '--cuda', cuda,
-    #         '--seed', seed,
-    #         '--batch_size', batch_size,
-    #         '--embed_size', embed_size,
-    #         '--hidden_size', hidden_size,
-    #         '--clip_grad', clip_grad,
-    #         '--label_smoothing', label_smoothing,
-    #         '--log_every', log_every,
-    #         '--max_epoch', max_epoch,
-    #         '--input_feed', input_feed,
-    #         '--patience', patience,
-    #         '--max_num_trial', max_num_trial,
-    #         '--lr_decay', lr_decay,
-    #         '--beam_size', beam_size,
-    #         '--sample_size', sample_size,
-    #         '--lr', lr,
-    #         '--uniform_init', uniform_init,
-    #         '--valid_niter', valid_niter,
-    #         '--dropout', dropout,
-    #         '--max_decoding_time_step', max_decoding_time_step,
-    #     ],
-    #     inputs=[train_dir, valid_dir, vocab_dir],
-    #     outputs=outputs,
-    #     compute_target=compute_target,
-    #     runconfig=run_config,
-    #     source_directory=os.path.dirname(os.path.abspath(__file__)),
-    #     allow_reuse=True
-    # )
-
-    script_params = {
-        '--train_dir': train_dir,
-        '--valid_dir': valid_dir,
-        '--input_col': input_col,
-        '--output_col': output_col,
-        '--vocab_dir': vocab_dir,
-        '--model_dir': model_dir,
-        '--input_col': input_col,
-        '--output_col': output_col,
-        '--cuda': cuda,
-        '--seed': seed,
-        '--batch_size': batch_size,
-        '--embed_size': embed_size,
-        '--hidden_size': hidden_size,
-        '--clip_grad': clip_grad,
-        '--label_smoothing': label_smoothing,
-        '--log_every': log_every,
-        '--max_epoch': max_epoch,
-        '--input_feed': input_feed,
-        '--patience': patience,
-        '--max_num_trial': max_num_trial,
-        '--lr_decay': lr_decay,
-        '--beam_size': beam_size,
-        '--sample_size': sample_size,
-        '--lr': lr,
-        '--uniform_init': uniform_init,
-        '--valid_niter': valid_niter,
-        '--dropout': dropout,
-        '--max_decoding_time_step': max_decoding_time_step,
-        '--model_dir': model_dir,
-   }
-
     estimator = PyTorch(
-        source_directory=project_folder,
         compute_target=compute_target,
         entry_script='train.py',
         script_params=script_params,
         node_count=2,
         distributed_training=Mpi(),
         source_directory=os.path.dirname(os.path.abspath(__file__)),
-        use_gpu=True)
+        use_gpu=True,
+        conda_packages=['nltk'])
+
+    est_step = EstimatorStep(
+        name="Estimator_Train", 
+        estimator=est, 
+        estimator_entry_script_arguments=["--datadir", input_data, "--output", output],
+        runconfig_pipeline_params=None, 
+        inputs=[input_data], 
+        outputs=[output], 
+        compute_target=cpu_cluster)
 
     return step, outputs_map
