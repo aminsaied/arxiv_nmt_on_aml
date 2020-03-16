@@ -68,7 +68,7 @@ pipeline_parameters = {
     'end_date': '2015-01-02',
     'input_col': 'Abstract',
     'output_col': 'Title',
-    'train_proportion': 0.8,
+    'train_proportion': 0.1,
     'max_epoch': 1,
 }
 

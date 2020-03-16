@@ -19,7 +19,6 @@ from collections import namedtuple
 import numpy as np
 from typing import List, Tuple, Dict, Set, Union
 import argparse
-from tqdm import tqdm
 from nltk.translate.bleu_score import corpus_bleu, sentence_bleu, SmoothingFunction
 
 import torch
@@ -561,6 +560,15 @@ def train(args: Dict):
                 input_feed=args.input_feed,
                 label_smoothing=float(args.label_smoothing),
                 vocab=vocab)
+
+    if args.cuda:
+        # Move model to GPU.
+        model.cuda()
+
+    if args.hvd:
+        # Horovod: broadcast parameters.
+        hvd.broadcast_parameters(model.state_dict(), root_rank=0)
+
     model.train()
 
     uniform_init = float(args.uniform_init)
@@ -577,7 +585,17 @@ def train(args: Dict):
 
     model = model.to(device)
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=float(args.lr))
+    # define optimizer
+    if args.hvd:
+        # scale learning rate by the number of GPUs.
+        optimizer = torch.optim.Adam(model.parameters(), lr=float(args.lr) * hvd.size())
+        # wrap optimizer with DistributedOptimizer.
+        optimizer = hvd.DistributedOptimizer(
+            optimizer,
+            named_parameters=model.named_parameters()
+            )
+    else:
+        optimizer = torch.optim.Adam(model.parameters(), lr=float(args.lr))
 
     num_trial = 0
     train_iter = patience = cum_loss = report_loss = cum_tgt_words = report_tgt_words = 0
@@ -701,6 +719,7 @@ if __name__ == '__main__':
     parser.add_argument('--input_col', type=str, help='The name of the input data column')
     parser.add_argument('--output_col', type=str, help='The name of the output data column')
     parser.add_argument('--cuda', type=bool, help='Set the cuda parameter')
+    parser.add_argument('--hvd', type=bool, help='Set the horovod parameter')
     parser.add_argument('--seed', type=int, help='Set the seed parameter')
     parser.add_argument('--model_dir', type=str, help='Set the model_dir where the model is saved')
     parser.add_argument('--batch_size', type=int, help='Set the batch_size parameter')
@@ -723,11 +742,21 @@ if __name__ == '__main__':
     parser.add_argument('--max_decoding_time_step', type=int, help='Set the max_decoding_time_step parameter')
     args = parser.parse_args()
 
+    if args.hvd:
+        # initialize horovod for multi-gpu training
+        hvd.init()
+
+        print("Training with horovod (multi-GPU).")
+        print("hvd size:", hvd.size())
+        print("hvd rank:", hvd.rank())
+
     # seed the random number generators
     seed = int(args.seed)
     torch.manual_seed(seed)
     if args.cuda:
-        torch.cuda.set_device(hvd.local_rank())
+        if args.hvd:
+            torch.cuda.set_device(hvd.local_rank())
+        
         torch.cuda.manual_seed(seed)
     np.random.seed(seed * 13 // 7)
 

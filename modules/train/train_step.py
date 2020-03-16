@@ -1,9 +1,8 @@
 import os
 from azureml.pipeline.steps import PythonScriptStep
+from azureml.train.dnn import PyTorch
+from azureml.train.dnn import Mpi
 from azureml.pipeline.steps import EstimatorStep
-# from azureml.pipeline.steps import MpiStep
-from azureml.contrib.pipeline.steps import ParallelRunConfig
-from azureml.contrib.pipeline.steps import ParallelRunStep
 from azureml.core import Environment
 from azureml.core.runconfig import RunConfiguration
 from azureml.core.runconfig import DEFAULT_GPU_IMAGE
@@ -68,6 +67,7 @@ def train_step(datastore, train_dir, valid_dir, vocab_dir, compute_target):
     input_col = PipelineParameter(name='input_col', default_value='Title')
     output_col = PipelineParameter(name='output_col', default_value='Abstract')
     cuda = PipelineParameter(name='cuda', default_value=True)
+    hvd = PipelineParameter(name='hvd', default_value=True)
     seed = PipelineParameter(name='seed', default_value=0)
     batch_size = PipelineParameter(name='batch_size', default_value=32)
     embed_size = PipelineParameter(name='embed_size', default_value=256)
@@ -104,20 +104,48 @@ def train_step(datastore, train_dir, valid_dir, vocab_dir, compute_target):
     estimator = PyTorch(
         compute_target=compute_target,
         entry_script='train.py',
-        script_params=script_params,
+        # script_params=script_params,
         node_count=2,
         distributed_training=Mpi(),
         source_directory=os.path.dirname(os.path.abspath(__file__)),
         use_gpu=True,
         conda_packages=['nltk'])
 
-    est_step = EstimatorStep(
-        name="Estimator_Train", 
-        estimator=est, 
-        estimator_entry_script_arguments=["--datadir", input_data, "--output", output],
+    step = EstimatorStep(
+        name="Train", 
+        estimator=estimator, 
+        estimator_entry_script_arguments=[
+            '--train_dir', train_dir,
+            '--valid_dir', valid_dir,
+            '--input_col', input_col,
+            '--output_col', output_col,
+            '--vocab_dir', vocab_dir,
+            '--model_dir', model_dir,
+            '--cuda', cuda,
+            '--hvd', hvd,
+            '--seed', seed,
+            '--batch_size', batch_size,
+            '--embed_size', embed_size,
+            '--hidden_size', hidden_size,
+            '--clip_grad', clip_grad,
+            '--label_smoothing', label_smoothing,
+            '--log_every', log_every,
+            '--max_epoch', max_epoch,
+            '--input_feed', input_feed,
+            '--patience', patience,
+            '--max_num_trial', max_num_trial,
+            '--lr_decay', lr_decay,
+            '--beam_size', beam_size,
+            '--sample_size', sample_size,
+            '--lr', lr,
+            '--uniform_init', uniform_init,
+            '--valid_niter', valid_niter,
+            '--dropout', dropout,
+            '--max_decoding_time_step', max_decoding_time_step,
+        ],
         runconfig_pipeline_params=None, 
-        inputs=[input_data], 
-        outputs=[output], 
-        compute_target=cpu_cluster)
+        inputs=[train_dir, valid_dir, vocab_dir],
+        outputs=outputs, 
+        compute_target=compute_target)
 
     return step, outputs_map
