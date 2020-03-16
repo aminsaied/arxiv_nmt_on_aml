@@ -19,7 +19,7 @@ def train_step(datastore, train_dir, valid_dir, vocab_dir, compute_target):
     :param datastore: The datastore that will be used
     :type datastore: Datastore
     :param train_dir: The reference to the directory containing the training data
-    :type train_src: DataReference
+    :type train_dir: DataReference
     :param valid_dir: The reference to the directory containing the validation data
     :type valid_dir: DataReference
     :param vocab_dir: The reference to the directory containing the vocab data
@@ -30,38 +30,6 @@ def train_step(datastore, train_dir, valid_dir, vocab_dir, compute_target):
     :return: The training step, step outputs dictionary (keys: model_dir)
     :rtype: PythonScriptStep, dict
     '''
-
-    run_config = RunConfiguration()
-    run_config.environment.docker.enabled = True
-    run_config.environment.docker.base_image = DEFAULT_GPU_IMAGE
-    run_config.environment.python.user_managed_dependencies = False
-    conda_packages = ['pytorch', 'tqdm', 'nltk']
-    run_config.environment.python.conda_dependencies = CondaDependencies.create(
-        conda_packages=conda_packages
-        )
-
-    # parallel_cd = CondaDependencies()
-
-    # parallel_cd.add_channel("pytorch")
-    # parallel_cd.add_conda_package("pytorch")
-    # parallel_cd.add_conda_package("torchvision")
-    # parallel_cd.add_conda_package("tqdm")
-    # parallel_cd.add_conda_package("nltk")
-
-    # parallel_env = Environment(name="styleenvironment")
-    # parallel_env.python.conda_dependencies=parallel_cd
-    # parallel_env.docker.base_image = DEFAULT_GPU_IMAGE
-
-    # parallel_run_config = ParallelRunConfig(
-    #                     environment=parallel_env,
-    #                     entry_script='train.py',
-    #                     output_action='summary_only',
-    #                     mini_batch_size="1",
-    #                     error_threshold=1,
-    #                     source_directory=os.path.dirname(os.path.abspath(__file__)),
-    #                     compute_target=compute_target, 
-    #                     node_count=3)
-
 
     # set hyperparameters of the model training step
     input_col = PipelineParameter(name='input_col', default_value='Title')
@@ -104,7 +72,6 @@ def train_step(datastore, train_dir, valid_dir, vocab_dir, compute_target):
     estimator = PyTorch(
         compute_target=compute_target,
         entry_script='train.py',
-        # script_params=script_params,
         node_count=2,
         distributed_training=Mpi(),
         source_directory=os.path.dirname(os.path.abspath(__file__)),
@@ -143,7 +110,6 @@ def train_step(datastore, train_dir, valid_dir, vocab_dir, compute_target):
             '--dropout', dropout,
             '--max_decoding_time_step', max_decoding_time_step,
         ],
-        runconfig_pipeline_params=None, 
         inputs=[train_dir, valid_dir, vocab_dir],
         outputs=outputs, 
         compute_target=compute_target)
