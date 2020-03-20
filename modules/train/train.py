@@ -32,6 +32,9 @@ import horovod.torch as hvd
 from vocab import Vocab, VocabEntry
 from utils import read_corpus, batch_iter, LabelSmoothingLoss
 
+import warnings
+warnings.filterwarnings("ignore")
+
 
 Hypothesis = namedtuple('Hypothesis', ['value', 'score'])
 
@@ -742,6 +745,7 @@ if __name__ == '__main__':
     parser.add_argument('--max_decoding_time_step', type=int, help='Set the max_decoding_time_step parameter')
     args = parser.parse_args()
 
+    print(args.hvd)
     if args.hvd:
         # initialize horovod for multi-gpu training
         hvd.init()

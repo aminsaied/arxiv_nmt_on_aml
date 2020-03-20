@@ -1,7 +1,8 @@
 import os
 from azureml.pipeline.steps import PythonScriptStep
 from azureml.train.dnn import PyTorch
-from azureml.train.dnn import Mpi
+# from azureml.train.dnn import Mpi
+from azureml.core.runconfig import MpiConfiguration
 from azureml.pipeline.steps import EstimatorStep
 from azureml.core import Environment
 from azureml.core.runconfig import RunConfiguration
@@ -35,7 +36,7 @@ def train_step(datastore, train_dir, valid_dir, vocab_dir, compute_target):
     input_col = PipelineParameter(name='input_col', default_value='Title')
     output_col = PipelineParameter(name='output_col', default_value='Abstract')
     cuda = PipelineParameter(name='cuda', default_value=True)
-    hvd = PipelineParameter(name='hvd', default_value=True)
+    hvd = PipelineParameter(name='hvd', default_value=False)
     seed = PipelineParameter(name='seed', default_value=0)
     batch_size = PipelineParameter(name='batch_size', default_value=32)
     embed_size = PipelineParameter(name='embed_size', default_value=256)
@@ -72,8 +73,9 @@ def train_step(datastore, train_dir, valid_dir, vocab_dir, compute_target):
     estimator = PyTorch(
         compute_target=compute_target,
         entry_script='train.py',
-        node_count=2,
-        distributed_training=Mpi(),
+        node_count=1,
+        process_count_per_node=2,
+        distributed_training=MpiConfiguration(),
         source_directory=os.path.dirname(os.path.abspath(__file__)),
         use_gpu=True,
         conda_packages=['nltk'])

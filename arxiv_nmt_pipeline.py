@@ -24,7 +24,7 @@ cpu_cluster_name = 'cpucluster'
 cpu_compute_config = AmlCompute.provisioning_configuration(vm_size='STANDARD_D2_V2', 
                                                            idle_seconds_before_scaledown=1200,
                                                            min_nodes=0, 
-                                                           max_nodes=2)
+                                                           max_nodes=6)
 cpu_compute_target = ComputeTarget.create(workspace, cpu_cluster_name, cpu_compute_config)
 cpu_compute_target.wait_for_completion(show_output=True)
 
@@ -34,7 +34,7 @@ gpu_cluster_name = 'gpucluster'
 gpu_compute_config = AmlCompute.provisioning_configuration(vm_size='STANDARD_NC6', 
                                                            idle_seconds_before_scaledown=1200,
                                                            min_nodes=0, 
-                                                           max_nodes=2)
+                                                           max_nodes=6)
 gpu_compute_target = ComputeTarget.create(workspace, gpu_cluster_name, gpu_compute_config)
 gpu_compute_target.wait_for_completion(show_output=True)
 
@@ -70,7 +70,10 @@ pipeline_parameters = {
     'output_col': 'Title',
     'train_proportion': 0.1,
     'max_epoch': 1,
+    'hvd': False,
+    'hidden_size': 1,
+    'embed_size': 1,
 }
 
 pipeline = Pipeline(workspace=workspace, steps=[ingest_step, preprocess_step, build_vocab_step, train_step, evaluate_step, deploy_step])
-pipeline_run = Experiment(workspace, 'arXiv-NMT').submit(pipeline, pipeline_parameters=pipeline_parameters)
+pipeline_run = Experiment(workspace, 'arXiv-NMT-mGPU').submit(pipeline, pipeline_parameters=pipeline_parameters)
