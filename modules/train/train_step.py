@@ -35,17 +35,17 @@ def train_step(datastore, train_dir, valid_dir, vocab_dir, compute_target):
     # set hyperparameters of the model training step
     input_col = PipelineParameter(name='input_col', default_value='Title')
     output_col = PipelineParameter(name='output_col', default_value='Abstract')
-    cuda = PipelineParameter(name='cuda', default_value=True)
-    hvd = PipelineParameter(name='hvd', default_value=False)
+    cuda = PipelineParameter(name='cuda', default_value=1)
+    hvd = PipelineParameter(name='hvd', default_value=1)
     seed = PipelineParameter(name='seed', default_value=0)
     batch_size = PipelineParameter(name='batch_size', default_value=32)
     embed_size = PipelineParameter(name='embed_size', default_value=256)
     hidden_size = PipelineParameter(name='hidden_size', default_value=256)
     clip_grad = PipelineParameter(name='clip_grad', default_value=5.0)
     label_smoothing = PipelineParameter(name='label_smoothing', default_value=0.0)
-    log_every = PipelineParameter(name='log_every', default_value=10)
+    log_every = PipelineParameter(name='log_every', default_value=1)
     max_epoch = PipelineParameter(name='max_epoch', default_value=2)
-    input_feed = PipelineParameter(name='input_feed', default_value=True)
+    input_feed = PipelineParameter(name='input_feed', default_value=1)
     patience = PipelineParameter(name='patience', default_value=5)
     max_num_trial = PipelineParameter(name='max_num_trial', default_value=5)
     lr_decay = PipelineParameter(name='lr_decay', default_value=0.5)
@@ -73,7 +73,7 @@ def train_step(datastore, train_dir, valid_dir, vocab_dir, compute_target):
     estimator = PyTorch(
         compute_target=compute_target,
         entry_script='train.py',
-        node_count=1,
+        node_count=2,
         process_count_per_node=2,
         distributed_training=MpiConfiguration(),
         source_directory=os.path.dirname(os.path.abspath(__file__)),

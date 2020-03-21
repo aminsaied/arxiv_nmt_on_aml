@@ -534,11 +534,14 @@ def compute_corpus_level_bleu_score(references: List[List[str]], hypotheses: Lis
 
 def train(args: Dict):
 
+    print("Grabbing training data...")
     train_src = os.path.join(args.train_dir, args.input_col.lower())
     train_tgt = os.path.join(args.train_dir, args.output_col.lower())
 
     train_data_src = read_corpus(train_src, source='src')
     train_data_tgt = read_corpus(train_tgt, source='tgt')
+    print("Source data in {} of length {}".format(train_src, len(train_data_src)))
+    print("Target data in {} of length {}".format(train_tgt, len(train_data_tgt)))
 
     dev_src = os.path.join(args.valid_dir, args.input_col.lower())
     dev_tgt = os.path.join(args.valid_dir, args.output_col.lower())
@@ -565,13 +568,14 @@ def train(args: Dict):
                 vocab=vocab)
 
     if args.cuda:
-        # Move model to GPU.
+        print("Moving model to GPU.")
         model.cuda()
 
     if args.hvd:
-        # Horovod: broadcast parameters.
+        print("Horovod broadcasting parameters.")
         hvd.broadcast_parameters(model.state_dict(), root_rank=0)
 
+    print("Setting model to train mode with `model.train`.")
     model.train()
 
     uniform_init = float(args.uniform_init)
@@ -583,13 +587,14 @@ def train(args: Dict):
     vocab_mask = torch.ones(len(vocab.tgt))
     vocab_mask[vocab.tgt['<pad>']] = 0
 
-    device = torch.device("cuda:0" if args.cuda else "cpu")
-    print('use device: %s' % device, file=sys.stderr)
-
-    model = model.to(device)
+    # TODO: remove this is not required
+    # device = torch.device("cuda:0" if args.cuda else "cpu")
+    # print('use device: %s' % device, file=sys.stderr)
+    # model = model.to(device)
 
     # define optimizer
     if args.hvd:
+        print("Scaling learning rate by number of GPUs, lr={0}".format(float(args.lr) * hvd.size()))
         # scale learning rate by the number of GPUs.
         optimizer = torch.optim.Adam(model.parameters(), lr=float(args.lr) * hvd.size())
         # wrap optimizer with DistributedOptimizer.
@@ -598,6 +603,7 @@ def train(args: Dict):
             named_parameters=model.named_parameters()
             )
     else:
+        print("Setting optimizer for single GPU.")
         optimizer = torch.optim.Adam(model.parameters(), lr=float(args.lr))
 
     num_trial = 0
@@ -607,11 +613,16 @@ def train(args: Dict):
     train_time = begin_time = time.time()
     print('begin Maximum Likelihood training')
 
-    while True:
+    while epoch < args.max_epoch + 1:
         epoch += 1
+        print("Epoch", epoch)
+
+        print(len(train_data))
+        print(train_batch_size)
 
         for src_sents, tgt_sents in batch_iter(train_data, batch_size=train_batch_size, shuffle=True):
             train_iter += 1
+            print("Training iteration", train_iter)
 
             optimizer.zero_grad()
 
@@ -721,8 +732,8 @@ if __name__ == '__main__':
     parser.add_argument('--vocab_dir', type=str)
     parser.add_argument('--input_col', type=str, help='The name of the input data column')
     parser.add_argument('--output_col', type=str, help='The name of the output data column')
-    parser.add_argument('--cuda', type=bool, help='Set the cuda parameter')
-    parser.add_argument('--hvd', type=bool, help='Set the horovod parameter')
+    parser.add_argument('--cuda', type=int, help='Set the cuda parameter')
+    parser.add_argument('--hvd', type=int, help='Set the horovod parameter')
     parser.add_argument('--seed', type=int, help='Set the seed parameter')
     parser.add_argument('--model_dir', type=str, help='Set the model_dir where the model is saved')
     parser.add_argument('--batch_size', type=int, help='Set the batch_size parameter')
@@ -732,7 +743,7 @@ if __name__ == '__main__':
     parser.add_argument('--label_smoothing', type=float, help='Set the label_smoothing parameter')
     parser.add_argument('--log_every', type=int, help='Set the log_every parameter')
     parser.add_argument('--max_epoch', type=int, default=2, help='Set the max_epoch parameter')
-    parser.add_argument('--input_feed', type=bool, help='Set the input_feed parameter')
+    parser.add_argument('--input_feed', type=int, help='Set the input_feed parameter')
     parser.add_argument('--patience', type=int, help='Set the patience parameter')
     parser.add_argument('--max_num_trial', type=int, help='Set the max_num_trial parameter')
     parser.add_argument('--lr_decay', type=float, help='Set the learning rate decay parameter')
@@ -753,6 +764,7 @@ if __name__ == '__main__':
         print("Training with horovod (multi-GPU).")
         print("hvd size:", hvd.size())
         print("hvd rank:", hvd.rank())
+        print("hvd local rank:", hvd.local_rank())
 
     # seed the random number generators
     seed = int(args.seed)

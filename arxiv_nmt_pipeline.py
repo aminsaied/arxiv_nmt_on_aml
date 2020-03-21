@@ -65,12 +65,12 @@ deploy_step, deploy_outputs = deploy_step(train_outputs['model_dir'], evaluate_o
 print('Submitting pipeline ...')
 pipeline_parameters = {
     'start_date': '2015-01-01',
-    'end_date': '2015-01-02',
+    'end_date': '2015-01-30',
     'input_col': 'Abstract',
     'output_col': 'Title',
-    'train_proportion': 0.1,
-    'max_epoch': 1,
-    'hvd': False,
+    'train_proportion': 0.8,
+    'max_epoch': 20,
+    'hvd': 1,
     'hidden_size': 1,
     'embed_size': 1,
 }
