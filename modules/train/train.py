@@ -31,6 +31,9 @@ from torch.nn.utils.rnn import pad_packed_sequence, pack_padded_sequence
 from vocab import Vocab, VocabEntry
 from utils import read_corpus, batch_iter, LabelSmoothingLoss
 
+import warnings
+warnings.filterwarnings("ignore")
+
 
 Hypothesis = namedtuple('Hypothesis', ['value', 'score'])
 
@@ -698,7 +701,7 @@ if __name__ == '__main__':
     parser.add_argument('--vocab_dir', type=str)
     parser.add_argument('--input_col', type=str, help='The name of the input data column')
     parser.add_argument('--output_col', type=str, help='The name of the output data column')
-    parser.add_argument('--cuda', type=bool, help='Set the cuda parameter')
+    parser.add_argument('--cuda', type=int, help='Set the cuda parameter')
     parser.add_argument('--seed', type=int, help='Set the seed parameter')
     parser.add_argument('--model_dir', type=str, help='Set the model_dir where the model is saved')
     parser.add_argument('--batch_size', type=int, help='Set the batch_size parameter')
@@ -708,7 +711,7 @@ if __name__ == '__main__':
     parser.add_argument('--label_smoothing', type=float, help='Set the label_smoothing parameter')
     parser.add_argument('--log_every', type=int, help='Set the log_every parameter')
     parser.add_argument('--max_epoch', type=int, default=2, help='Set the max_epoch parameter')
-    parser.add_argument('--input_feed', type=bool, help='Set the input_feed parameter')
+    parser.add_argument('--input_feed', type=int, help='Set the input_feed parameter')
     parser.add_argument('--patience', type=int, help='Set the patience parameter')
     parser.add_argument('--max_num_trial', type=int, help='Set the max_num_trial parameter')
     parser.add_argument('--lr_decay', type=float, help='Set the learning rate decay parameter')

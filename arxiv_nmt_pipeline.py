@@ -73,4 +73,4 @@ pipeline_parameters = {
 }
 
 pipeline = Pipeline(workspace=workspace, steps=[ingest_step, preprocess_step, build_vocab_step, train_step, evaluate_step, deploy_step])
-pipeline_run = Experiment(workspace, 'arXiv-NMT-reverse').submit(pipeline, pipeline_parameters=pipeline_parameters)
+pipeline_run = Experiment(workspace, 'arXiv-NMT').submit(pipeline, pipeline_parameters=pipeline_parameters)
