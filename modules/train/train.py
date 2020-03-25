@@ -620,7 +620,8 @@ def train(args: Dict):
         print(len(train_data))
         print(train_batch_size)
 
-        for src_sents, tgt_sents in batch_iter(train_data, batch_size=train_batch_size, shuffle=True):
+        # for src_sents, tgt_sents in batch_iter(train_data, batch_size=train_batch_size, shuffle=True):
+        for _, (src_sents, tgt_sents) in enumerate(train_loader):
             train_iter += 1
             print("Training iteration", train_iter)
 
