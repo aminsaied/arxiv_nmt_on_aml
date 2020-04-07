@@ -5,7 +5,7 @@ from arxiv_harvester import ArxivHarvester
 
 # Define arguments
 parser = argparse.ArgumentParser(description='arXiv scraping arg parser')
-parser.add_argument('--output_dir', type=str, help='Directory to store output raw data')
+parser.add_argument('--output_dir', default='../data/raw/', type=str, help='Directory to store output raw data')
 parser.add_argument('--start_date', type=str, help='Start date for harvest')
 parser.add_argument('--end_date', type=str, help='End date for harvest')
 args = parser.parse_args()

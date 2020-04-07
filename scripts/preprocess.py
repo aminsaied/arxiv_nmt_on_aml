@@ -3,17 +3,17 @@ import argparse
 import random
 import pandas as pd
 
-from utils import TextCleaner, train_valid_test_split
+from preprocess_utils import TextCleaner, train_valid_test_split
         
 # Define arguments
 parser = argparse.ArgumentParser(description='Preprocess text data arg parser')
-parser.add_argument('--raw_data_dir', type=str, help='Directory where raw data is stored')
+parser.add_argument('--raw_data_dir', type=str, default='../data/raw/', help='Directory where raw data is stored')
 parser.add_argument('--train_proportion', type=float, default=0.8, help='Proportion of data used to train')
-parser.add_argument('--train_dir', type=str, help='Directory to output the processed training data')
-parser.add_argument('--valid_dir', type=str, help='Directory to output the processed valid data')
-parser.add_argument('--test_dir', type=str, help='Directory to output the processed test data')
-parser.add_argument('--input_col', type=str, help='Name of the input data column')
-parser.add_argument('--output_col', type=str, help='Name of the output data column')
+parser.add_argument('--train_dir', type=str, default='../data/train/', help='Directory to output the processed training data')
+parser.add_argument('--valid_dir', type=str, default='../data/valid/', help='Directory to output the processed valid data')
+parser.add_argument('--test_dir', type=str, default='../data/test/', help='Directory to output the processed test data')
+parser.add_argument('--input_col', type=str, default='Abstract', help='Name of the input data column')
+parser.add_argument('--output_col', type=str, default='Title', help='Name of the output data column')
 args = parser.parse_args()
 
 # Get arguments from parser
@@ -46,8 +46,14 @@ for file in raw_files:
         # load the raw data
         arxiv = pd.read_pickle(os.path.join(raw_data_dir, file))
 
+        print("Num. raw samples:", len(arxiv))
+
         # split the data into train/valid/test sets
         train, valid, test = train_valid_test_split(arxiv, train_proportion)
+
+        print("Num. training samples:", len(train))
+        print("Num. validation samples:", len(valid))
+        print("Num. test samples:", len(test))
 
         # process the text
         dirs = [train_dir, valid_dir, test_dir]
